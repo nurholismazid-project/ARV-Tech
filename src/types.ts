@@ -21,6 +21,7 @@ export interface TransactionItem {
   name: string;
   quantity: number;
   price: number;
+  totalPrice: number;
 }
 
 export interface Transaction {
@@ -30,6 +31,17 @@ export interface Transaction {
   totalAmount: number;
   totalProfit: number;
   customerName?: string;
+}
+
+export type CustomerReference = 'Offline' | 'Reseller' | 'WhatsApp' | 'Facebook' | 'Instagram' | 'TikTok' | 'Website';
+
+export interface Customer {
+  id: string;
+  name: string;
+  phone?: string;
+  reference?: CustomerReference;
+  address?: string;
+  updatedAt: number;
 }
 
 export interface DashboardStats {

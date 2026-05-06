@@ -21,13 +21,21 @@
 }
 
 .btn-primary {
-  @apply bg-primary hover:bg-sky-600 text-white font-bold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-lg shadow-sky-500/10 active:scale-95;
+  @apply bg-primary hover:bg-rose-600 text-white font-bold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-lg shadow-rose-500/10 active:scale-95 text-sm;
 }
 
 .btn-secondary {
-  @apply bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 active:scale-95;
+  @apply bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 active:scale-95 text-sm;
 }
 
 .input-field {
-  @apply bg-[#0b0d11] border border-surface-border text-slate-100 rounded-xl py-2 px-4 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-slate-600;
+  @apply bg-[#0b0d11] border border-surface-border text-slate-100 rounded-xl py-2 px-4 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-slate-600 text-sm;
+}
+
+.label-caps {
+  @apply text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em];
+}
+
+.heading-display {
+  @apply text-lg font-bold text-white tracking-tight;
 }

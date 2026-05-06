@@ -16,10 +16,12 @@ import {
   MousePointer2,
   ChevronRight,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { useApp } from '../context/AppContext';
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -56,6 +58,8 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => {
+  const { t, language } = useApp();
+
   return (
     <div className="flex min-h-screen bg-surface-base">
       {/* Sidebar - Desktop Only */}
@@ -65,41 +69,47 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
             <h1 className="font-bold text-4xl tracking-tighter text-white leading-none">
               ARV<span className="text-primary">-Tech</span>
             </h1>
-            <p className="text-[11px] uppercase tracking-[0.35em] text-slate-500 font-medium mt-2">Finance Manager</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-500 font-medium mt-2">Finance Manager</p>
           </div>
         </div>
 
         <nav className="flex flex-col gap-1">
           <NavItem 
             icon={LayoutDashboard} 
-            label="Dashboard" 
+            label={t('dashboard')} 
             active={currentView === 'dashboard'} 
             onClick={() => onViewChange('dashboard')} 
           />
           <NavItem 
             icon={ShoppingCart} 
-            label="New Sale" 
+            label={t('sales')} 
             active={currentView === 'sales'} 
             onClick={() => onViewChange('sales')} 
           />
           <NavItem 
             icon={Package} 
-            label="Inventory" 
+            label={t('inventory')} 
             active={currentView === 'inventory'} 
             onClick={() => onViewChange('inventory')} 
           />
           <NavItem 
             icon={History} 
-            label="History" 
+            label={t('history')} 
             active={currentView === 'history'} 
             onClick={() => onViewChange('history')} 
+          />
+          <NavItem 
+            icon={Users} 
+            label={t('customers')} 
+            active={currentView === 'customers'} 
+            onClick={() => onViewChange('customers')} 
           />
         </nav>
 
         <div className="mt-auto pt-6 border-t border-surface-border">
            <NavItem 
             icon={Settings} 
-            label="Settings" 
+            label={t('settings')} 
             active={currentView === 'settings'} 
             onClick={() => onViewChange('settings')} 
           />
@@ -113,6 +123,7 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
           { id: 'sales', icon: ShoppingCart },
           { id: 'inventory', icon: Package },
           { id: 'history', icon: History },
+          { id: 'customers', icon: Users },
           { id: 'settings', icon: Settings },
         ].map((item) => (
           <button
@@ -134,19 +145,19 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
           <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b border-surface-border pb-6 gap-4">
             <div>
               <h2 className="text-2xl font-medium text-white capitalize tracking-tight">
-                {currentView.replace('-', ' ')}
+                {t(currentView as any)}
               </h2>
-              <p className="text-slate-500 text-xs uppercase tracking-widest mt-1">ARV-Tech Solutions Overview</p>
+              <p className="text-slate-500 text-xs uppercase tracking-widest mt-1">{t('overview')}</p>
             </div>
             
             <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
                <div className="text-left md:text-right">
                  <p className="text-sm font-medium text-slate-300">
-                    {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    {new Date().toLocaleDateString(language === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'short' })}
                  </p>
                  <div className="flex items-center gap-2 justify-start md:justify-end mt-0.5">
-                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                   <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Online</span>
+                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                   <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t('online')}</span>
                  </div>
                </div>
                <div className="w-10 h-10 rounded-full bg-slate-800 border border-surface-border flex items-center justify-center text-xs font-medium text-white shadow-sm">

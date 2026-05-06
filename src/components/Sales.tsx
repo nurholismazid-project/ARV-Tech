@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { Product, TransactionItem } from '../types';
+import { Product, TransactionItem, Transaction } from '../types';
 import { 
   Search, 
   ShoppingCart, 
@@ -17,13 +17,17 @@ import {
   CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ReceiptModal } from './ReceiptModal';
+import { cn } from '../lib/utils';
 
 export const Sales = () => {
-  const { products, addTransaction, formatCurrency } = useApp();
+  const { products, addTransaction, formatCurrency, t } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [cart, setCart] = useState<TransactionItem[]>([]);
   const [customerName, setCustomerName] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null);
+  const [isShowingReceipt, setIsShowingReceipt] = useState(false);
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => 
@@ -64,7 +68,7 @@ export const Sales = () => {
 
   const totalAmount = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) return;
 
     let totalProfit = 0;
@@ -75,16 +79,31 @@ export const Sales = () => {
       }
     });
 
-    addTransaction({
-      items: cart,
+    const items = cart.map(item => ({ ...item, totalPrice: item.price * item.quantity }));
+    
+    const transactionData = {
+      items,
       totalAmount,
       totalProfit,
-      customerName,
-    });
+      customerName: customerName || t('general_customer'),
+    };
 
+    const txId = crypto.randomUUID();
+    const date = Date.now();
+    
+    const fullTransaction: Transaction = {
+      ...transactionData,
+      id: txId,
+      date
+    };
+
+    await addTransaction(transactionData);
+
+    setLastTransaction(fullTransaction);
     setCart([]);
     setCustomerName('');
     setShowSuccess(true);
+    setIsShowingReceipt(true);
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
@@ -92,13 +111,13 @@ export const Sales = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
       {/* Product Selection */}
       <div className="lg:col-span-2 space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-800/10 p-4 rounded-xl border border-surface-border">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-xl border border-white/5">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="text"
-              placeholder="Search products..."
-              className="input-field w-full pl-12 py-3 text-sm"
+              placeholder={t('search_products')}
+              className="input-field w-full !pl-12 py-3.5 text-sm font-medium tracking-tight"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -110,20 +129,23 @@ export const Sales = () => {
             <button
               key={product.id}
               onClick={() => addToCart(product)}
-              className="glass-panel p-4 rounded-2xl flex justify-between items-center hover:border-primary/50 transition-all text-left group"
+              className="glass-panel p-5 rounded-2xl flex justify-between items-center hover:border-primary/40 hover:bg-primary/5 transition-all text-left group"
             >
-              <div>
-                <h4 className="font-medium text-white group-hover:text-primary transition-colors">{product.name}</h4>
-                <p className="text-xs text-zinc-500 uppercase font-medium tracking-wider">{product.category}</p>
-                <p className="text-lg font-mono text-zinc-100 mt-1">{formatCurrency(product.sellPrice)}</p>
+              <div className="space-y-1">
+                <p className="label-caps !text-slate-500">{t(`cat_${product.category}` as any)}</p>
+                <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors leading-tight">{product.name}</h4>
+                <p className="text-lg font-bold font-mono text-white pt-1">{formatCurrency(product.sellPrice)}</p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-zinc-500 uppercase font-medium block mb-1">Stok Tersedia</span>
-                <span className={`px-2 py-1 rounded-md text-xs font-medium ${product.stock < 5 ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'}`}>
-                  {product.stock} Unit
+                <span className="label-caps block mb-1.5">{t('stock')}</span>
+                <span className={cn(
+                   "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide",
+                   product.stock < 5 ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-primary/10 text-primary border border-primary/20'
+                )}>
+                  {product.stock} {t('unit')}
                 </span>
-                <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="p-1.5 bg-primary rounded-lg">
+                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                  <div className="inline-flex p-2 bg-primary rounded-xl shadow-lg shadow-primary/20">
                     <Plus className="w-4 h-4 text-white" />
                   </div>
                 </div>
@@ -132,7 +154,7 @@ export const Sales = () => {
           ))}
           {filteredProducts.length === 0 && (
             <div className="col-span-full py-20 text-center text-zinc-500 glass-panel rounded-2xl border-dashed">
-               <p>Tidak ada produk yang tersedia</p>
+               <p>{t('no_product_available')}</p>
             </div>
           )}
         </div>
@@ -140,20 +162,22 @@ export const Sales = () => {
 
       {/* Cart / Summary */}
       <div className="space-y-6">
-        <div className="glass-panel p-6 rounded-3xl sticky top-8">
-          <div className="flex items-center gap-2 mb-6">
-            <ShoppingCart className="w-6 h-6 text-primary" />
-            <h3 className="text-xl font-medium text-white">Keranjang Belanja</h3>
+        <div className="glass-panel p-6 rounded-3xl sticky top-8 border-primary/10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2.5 bg-primary/10 rounded-xl">
+              <ShoppingCart className="w-5 h-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-white tracking-tight">{t('cart')}</h3>
           </div>
 
-          <div className="space-y-2 mb-6">
-            <label className="text-xs font-medium text-zinc-500 uppercase tracking-widest block">Nama Pelanggan</label>
+          <div className="space-y-3 mb-8">
+            <label className="label-caps ml-1">{t('customer_name')}</label>
             <div className="relative">
-               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                <input
                 type="text"
-                placeholder="Pelanggan Umum"
-                className="input-field w-full pl-10 text-sm"
+                placeholder={t('general_customer')}
+                className="input-field w-full !pl-12 text-sm font-medium"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />
@@ -191,22 +215,22 @@ export const Sales = () => {
             ))}
             {cart.length === 0 && (
               <div className="text-center py-10 text-zinc-600">
-                <p className="text-sm">Belum ada item ditambahkan</p>
+                <p className="text-sm">{t('no_item_added')}</p>
               </div>
             )}
           </div>
 
           <div className="space-y-3 mb-8">
-            <div className="flex justify-between text-zinc-400">
-               <span>Subtotal</span>
+            <div className="flex justify-between text-sm text-zinc-400">
+               <span>{t('subtotal')}</span>
                <span className="font-mono">{formatCurrency(totalAmount)}</span>
             </div>
-            <div className="flex justify-between text-zinc-400">
-               <span>Pajak (0%)</span>
+            <div className="flex justify-between text-sm text-zinc-400">
+               <span>{t('tax')} (0%)</span>
                <span className="font-mono">Rp 0</span>
             </div>
-            <div className="flex justify-between text-2xl font-medium text-white pt-3 border-t border-zinc-800">
-              <span>Total</span>
+            <div className="flex justify-between text-2xl font-bold text-white pt-3 border-t border-zinc-800">
+              <span>{t('total')}</span>
               <span className="text-primary font-mono">{formatCurrency(totalAmount)}</span>
             </div>
           </div>
@@ -217,7 +241,7 @@ export const Sales = () => {
             className="btn-primary w-full py-4 rounded-2xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
           >
             <CreditCard className="w-6 h-6" />
-            Selesaikan Transaksi
+            {t('complete_transaction')}
           </button>
         </div>
       </div>
@@ -229,18 +253,23 @@ export const Sales = () => {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 glass-panel border-emerald-500/50 bg-emerald-500/10 px-8 py-4 rounded-2xl flex items-center gap-4 z-50 pointer-events-none"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 glass-panel border-primary/50 bg-primary/10 px-8 py-4 rounded-2xl flex items-center gap-4 z-50 pointer-events-none"
           >
-            <div className="p-2 bg-emerald-500 rounded-full">
+            <div className="p-2 bg-primary rounded-full">
               <CheckCircle2 className="w-6 h-6 text-white" />
             </div>
             <div>
-               <p className="text-white font-medium">Transaksi Berhasil!</p>
-               <p className="text-emerald-500/80 text-sm">Inventaris telah diperbarui secara otomatis.</p>
+               <p className="text-white font-medium">{t('transaction_success')}</p>
+               <p className="text-primary/80 text-sm">{t('inventory_updated')}</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ReceiptModal 
+        transaction={isShowingReceipt ? lastTransaction : null} 
+        onClose={() => setIsShowingReceipt(false)} 
+      />
     </div>
   );
 };

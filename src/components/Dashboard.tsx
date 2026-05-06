@@ -26,17 +26,23 @@ import {
 import { format, subDays, isSameDay } from 'date-fns';
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }: any) => (
-  <div className="glass-panel p-5 rounded-xl border-slate-800">
-    <div className="flex justify-between items-start mb-3">
-      <p className="text-slate-500 text-[10px] font-medium uppercase tracking-widest">{title}</p>
-      <div className={`p-2 rounded-lg ${color === 'primary' ? 'bg-primary/10' : `bg-${color}-500/10`}`}>
-        <Icon className={`w-4 h-4 ${color === 'primary' ? 'text-primary' : `text-${color}-500`}`} />
+  <div className="glass-panel p-5 rounded-xl border-slate-800/10">
+    <div className="flex justify-between items-start mb-4">
+      <p className="label-caps">{title}</p>
+      <div className={cn(
+        "p-2 rounded-xl transition-colors",
+        color === 'primary' ? 'bg-primary/10 text-primary' : `bg-${color}-500/10 text-${color}-500`
+      )}>
+        <Icon className="w-4 h-4" />
       </div>
     </div>
     <div className="flex items-baseline gap-2">
-      <h2 className="text-2xl font-medium text-white tracking-tight">{value}</h2>
+      <h2 className="text-2xl font-bold text-white tracking-tight font-sans">{value}</h2>
       {trend && (
-        <span className={`text-[10px] font-medium ${trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}`}>
+        <span className={cn(
+          "text-[10px] font-bold px-1.5 py-0.5 rounded-md",
+          trend === 'up' ? 'text-red-400 bg-red-400/10' : 'text-rose-400 bg-rose-400/10'
+        )}>
           {trend === 'up' ? '↑' : '↓'} {trendValue}
         </span>
       )}
@@ -45,7 +51,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }: any) =
 );
 
 export const Dashboard = () => {
-  const { products, transactions, formatCurrency } = useApp();
+  const { products, transactions, formatCurrency, t } = useApp();
 
   const stats = useMemo(() => {
     const totalSales = transactions.reduce((acc, t) => acc + t.totalAmount, 0);
@@ -55,6 +61,51 @@ export const Dashboard = () => {
 
     return { totalSales, totalProfit, lowStockCount, totalProducts };
   }, [products, transactions]);
+
+  const topProducts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    transactions.forEach(tx => {
+      tx.items.forEach(item => {
+        counts[item.productId] = (counts[item.productId] || 0) + item.quantity;
+      });
+    });
+
+    return Object.entries(counts)
+      .map(([id, qty]) => {
+        const product = products.find(p => p.id === id);
+        return { product, qty };
+      })
+      .filter(item => item.product)
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 4);
+  }, [products, transactions]);
+
+  const salesByCategory = useMemo(() => {
+    const categoryTotals: Record<string, number> = {};
+    transactions.forEach(tx => {
+      tx.items.forEach(item => {
+         const product = products.find(p => p.id === item.productId);
+         if (product) {
+            categoryTotals[product.category] = (categoryTotals[product.category] || 0) + item.totalPrice;
+         }
+      });
+    });
+    
+    const totalRevenue = Object.values(categoryTotals).reduce((a, b) => a + b, 0) || 1;
+    const colors = ['bg-primary', 'bg-red-600', 'bg-rose-700', 'bg-red-800', 'bg-rose-900'];
+    
+    return Object.entries(categoryTotals)
+      .map(([name, value], i) => ({
+        name: t(`cat_${name}` as any),
+        pct: Math.round((value / totalRevenue) * 100),
+        color: colors[i % colors.length]
+      }))
+      .sort((a, b) => b.pct - a.pct);
+  }, [products, transactions, t]);
+
+  const lowStockItems = useMemo(() => {
+    return products.filter(p => p.stock < 5).sort((a, b) => a.stock - b.stock).slice(0, 5);
+  }, [products]);
 
   const chartData = useMemo(() => {
     return Array.from({ length: 7 }).map((_, i) => {
@@ -73,27 +124,27 @@ export const Dashboard = () => {
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title="Daily Revenue" 
+          title={t('daily_revenue')} 
           value={formatCurrency(stats.totalSales)} 
           icon={DollarSign} 
-          color="emerald"
+          color="primary"
           trend="up"
           trendValue="12%"
         />
         <StatCard 
-          title="Monthly Profit" 
+          title={t('monthly_profit')} 
           value={formatCurrency(stats.totalProfit)} 
           icon={TrendingUp} 
           color="primary" 
         />
         <StatCard 
-          title="Low Stock Alerts" 
-          value={`${stats.lowStockCount} Items`} 
+          title={t('low_stock_alerts')} 
+          value={`${stats.lowStockCount} ${t('items')}`} 
           icon={AlertTriangle} 
-          color="orange" 
+          color="primary" 
         />
         <StatCard 
-          title="Total Products" 
+          title={t('total_products')} 
           value={stats.totalProducts} 
           icon={Package} 
           color="slate" 
@@ -102,17 +153,20 @@ export const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-4">
         {/* Sales Chart */}
-        <div className="lg:col-span-2 glass-panel p-4 md:p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <h3 className="font-medium text-white">Revenue Performance</h3>
-            <div className="flex gap-2 bg-slate-800/50 p-1 rounded-lg">
-               <button className="text-[10px] font-medium text-white uppercase px-3 py-1 bg-primary rounded-md shadow-sm">7D</button>
-               <button className="text-[10px] font-medium text-slate-400 uppercase px-3 py-1 hover:text-slate-200">30D</button>
+        <div className="lg:col-span-2 glass-panel p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+            <div>
+              <h3 className="heading-display">{t('revenue_performance')}</h3>
+              <p className="text-xs text-slate-500 mt-2 font-medium">{t('last_7_days_activity') || 'Historical sales data analysis'}</p>
+            </div>
+            <div className="flex gap-1.5 bg-slate-900/50 p-1.5 rounded-xl border border-white/5">
+               <button className="text-[10px] font-bold text-white uppercase tracking-widest px-4 py-1.5 bg-primary rounded-lg shadow-lg shadow-primary/20 transition-all">7D</button>
+               <button className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 py-1.5 hover:text-slate-200 transition-colors">30D</button>
             </div>
           </div>
-          <div className="h-[250px] md:h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
+          <div className="min-h-[250px] md:min-h-[300px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#FF0000" stopOpacity={0.2}/>
@@ -123,22 +177,22 @@ export const Dashboard = () => {
                 <XAxis 
                   dataKey="name" 
                   stroke="#475569" 
-                  fontSize={10} 
+                  fontSize={12} 
                   tickLine={false} 
                   axisLine={false} 
                   dy={10}
                 />
                 <YAxis 
                   stroke="#475569" 
-                  fontSize={10} 
+                  fontSize={12} 
                   tickLine={false} 
                   axisLine={false} 
                   tickFormatter={(val) => `Rp${val/1000}k`}
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#1a1d24', border: '1px solid #1e293b', borderRadius: '12px' }}
-                  itemStyle={{ color: '#FF0000', fontSize: '12px' }}
-                  labelStyle={{ fontSize: '10px', color: '#64748b', marginBottom: '4px' }}
+                  itemStyle={{ color: '#FF0000', fontSize: '14px' }}
+                  labelStyle={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}
                   cursor={{ stroke: '#1e293b' }}
                   formatter={(val: number) => formatCurrency(val)}
                 />
@@ -155,31 +209,89 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Categories / Breakdown */}
-        <div className="glass-panel p-6 flex flex-col">
-          <h3 className="font-medium text-white mb-6">Sales by Category</h3>
-          <div className="space-y-6 flex-1 flex flex-col justify-center">
-             {[
-               { name: 'Laptops & PC', color: 'bg-primary', width: 'w-[45%]', pct: '45%' },
-               { name: 'CCTV Systems', color: 'bg-indigo-500', width: 'w-[30%]', pct: '30%' },
-               { name: 'Accessories', color: 'bg-emerald-500', width: 'w-[25%]', pct: '25%' }
-             ].map((cat, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-xs items-center mb-1">
-                    <span className="text-slate-400 font-medium">{cat.name}</span>
-                    <span className="text-white font-medium">{cat.pct}</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                    <div className={cn("h-full rounded-full transition-all duration-1000", cat.color, cat.width)} />
-                  </div>
-                </div>
-             ))}
-          </div>
-          <div className="mt-8 pt-6 border-t border-slate-800">
-             <button className="w-full btn-primary text-xs tracking-wider uppercase font-medium">
-                Generate Full Report
-             </button>
-          </div>
+        {/* Categories & Top Products */}
+        <div className="space-y-6">
+           <div className="glass-panel p-6 flex flex-col">
+              <h3 className="heading-display mb-8">{t('sales_by_category')}</h3>
+              <div className="space-y-6 flex-1">
+                 {salesByCategory.length > 0 ? salesByCategory.map((cat, i) => (
+                    <div key={i} className="space-y-2.5">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="label-caps !text-slate-400">{cat.name}</span>
+                        <span className="text-white font-bold text-sm font-mono">{cat.pct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div 
+                          className={cn("h-full rounded-full transition-all duration-1000", cat.color)} 
+                          style={{ width: `${cat.pct}%` }}
+                        />
+                      </div>
+                    </div>
+                 )) : (
+                    <p className="text-center text-slate-500 text-sm py-10 italic">{t('no_sales_data')}</p>
+                 )}
+              </div>
+              
+              <div className="mt-10 pt-10 border-t border-slate-800/50">
+                 <h3 className="label-caps mb-6">{t('top_selling')}</h3>
+                 <div className="space-y-5">
+                    {topProducts.length > 0 ? topProducts.map((item: any, i) => (
+                       <div key={i} className="flex items-center justify-between group cursor-default">
+                          <div className="flex items-center gap-4">
+                             <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800/50 flex items-center justify-center text-[11px] text-slate-500 font-bold group-hover:border-primary/50 group-hover:text-primary transition-all">
+                                0{i + 1}
+                             </div>
+                             <div>
+                                <p className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors truncate max-w-[140px]">{item.product.name}</p>
+                                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">{t(`cat_${item.product.category}` as any)}</p>
+                             </div>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-sm font-bold font-mono text-white whitespace-nowrap">{item.qty} <span className="text-slate-500 font-sans text-[10px] uppercase">{t('unit')}</span></p>
+                             <div className="flex items-center justify-end gap-1 mt-0.5">
+                                <span className="w-1 h-1 rounded-full bg-primary"></span>
+                                <p className="text-[10px] text-primary font-bold uppercase tracking-tight">{t('qty_sold')}</p>
+                             </div>
+                          </div>
+                       </div>
+                    )) : (
+                       <div className="text-center py-6">
+                          <Package className="w-8 h-8 mx-auto mb-2 opacity-5 text-slate-500" />
+                          <p className="text-xs text-slate-600 italic">{t('no_sales_data')}</p>
+                       </div>
+                    )}
+                 </div>
+              </div>
+           </div>
+
+           {/* Low Stock Watchlist */}
+           {lowStockItems.length > 0 && (
+              <div className="glass-panel p-6 border-rose-500/20 bg-rose-500/5">
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-medium text-rose-500 flex items-center gap-2">
+                       <AlertTriangle className="w-4 h-4" />
+                       {t('low_stock_alerts')}
+                    </h3>
+                    <span className="text-xs bg-rose-500 text-white px-2 py-0.5 rounded-full font-bold">
+                       {lowStockItems.length}
+                    </span>
+                 </div>
+                 <div className="space-y-4">
+                    {lowStockItems.map((item) => (
+                       <div key={item.id} className="flex justify-between items-center border-b border-rose-500/10 pb-3 last:border-0 last:pb-0">
+                          <div>
+                             <p className="text-sm font-medium text-white">{item.name}</p>
+                             <p className="text-xs text-zinc-500 uppercase">{t(`cat_${item.category}` as any)}</p>
+                          </div>
+                          <div className="text-right leading-none">
+                             <p className="text-sm font-bold text-rose-500">{item.stock}</p>
+                             <p className="text-xs text-rose-500/60 uppercase">{t('unit')}</p>
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              </div>
+           )}
         </div>
       </div>
     </div>
