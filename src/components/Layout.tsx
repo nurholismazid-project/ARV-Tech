@@ -156,7 +156,7 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
                     {new Date().toLocaleDateString(language === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'short' })}
                  </p>
                  <div className="flex items-center gap-2 justify-start md:justify-end mt-0.5">
-                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                    <span className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t('online')}</span>
                  </div>
                </div>

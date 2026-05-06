@@ -65,12 +65,12 @@ const SettingsView = () => {
                   <div className="flex items-center justify-between p-4 bg-slate-950 rounded-2xl border border-white/5">
                      <div>
                         <p className="label-caps">{t('supabase_status')}</p>
-                        <p className={`text-sm font-bold flex items-center gap-2 mt-1 ${isConnected ? 'text-primary' : 'text-slate-500'}`}>
+                        <p className={`text-sm font-bold flex items-center gap-2 mt-1 ${isConnected ? 'text-emerald-500' : 'text-slate-500'}`}>
                            {isConnected ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
                            {isConnected ? t('supabase_connected') : t('supabase_disconnected')}
                         </p>
                      </div>
-                     <Cloud className={`w-10 h-10 ${isConnected ? 'text-primary/10' : 'text-slate-800'}`} />
+                     <Cloud className={`w-10 h-10 ${isConnected ? 'text-emerald-500/10' : 'text-slate-800'}`} />
                   </div>
 
                   <div className="space-y-4">
@@ -109,8 +109,8 @@ const SettingsView = () => {
                </div>
             </div>
 
-            <div className={`${isConnected ? 'bg-primary/5 border-primary/10' : 'bg-slate-900/5 border-slate-900/10'} p-6 rounded-3xl transition-colors duration-500`}>
-               <h4 className={`${isConnected ? 'text-primary' : 'text-slate-600'} font-bold flex items-center gap-2 mb-3 text-sm tracking-tight`}>
+            <div className={`${isConnected ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-slate-900/5 border-slate-900/10'} p-6 rounded-3xl transition-colors duration-500`}>
+               <h4 className={`${isConnected ? 'text-emerald-400' : 'text-slate-600'} font-bold flex items-center gap-2 mb-3 text-sm tracking-tight`}>
                   {isConnected ? <CheckCircle2 className="w-4.5 h-4.5" /> : <AlertCircle className="w-4.5 h-4.5" />}
                   {isConnected ? t('cloud_storage_active') : t('local_storage_warning')}
                </h4>
