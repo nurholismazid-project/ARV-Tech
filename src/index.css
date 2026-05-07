@@ -27,7 +27,7 @@
   --color-surface-panel: var(--panel);
   --color-surface-border: var(--border);
   --color-text-main: var(--text-main-custom, var(--text-main));
-  --color-text-muted: var(--text-muted);
+  --color-text-muted: var(--text-main-custom, var(--text-muted));
   --color-text-heading: var(--text-heading-custom, var(--text-heading));
   --color-input-bg: var(--input-bg);
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
@@ -56,7 +56,8 @@
 }
 
 .btn-secondary {
-  @apply bg-slate-800 dark:bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 active:scale-95 text-sm;
+  @apply border border-surface-border font-bold py-2.5 px-5 rounded-xl transition-all duration-200 active:scale-95 text-sm text-text-muted hover:text-text-heading hover:border-primary/30;
+  background-color: var(--nav-inactive-custom, transparent);
 }
 
 .input-field {

@@ -27,11 +27,11 @@ import {
 import { format, subDays, isSameDay } from 'date-fns';
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, description, isExpense }: any) => (
-  <div className="glass-panel p-5 rounded-xl border-slate-800/10">
+  <div className="glass-panel p-5 rounded-xl border-surface-border bg-surface-panel transition-colors">
     <div className="flex justify-between items-start mb-4">
       <div>
         <p className="label-caps">{title}</p>
-        {description && <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">{description}</p>}
+        {description && <p className="text-[9px] text-text-muted font-bold uppercase tracking-widest mt-1 transition-colors">{description}</p>}
       </div>
       <div className={cn(
         "p-2 rounded-xl transition-colors",

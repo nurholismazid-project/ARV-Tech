@@ -96,7 +96,7 @@ export const Inventory = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h2 className="heading-display">{t('inventory')}</h2>
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Management Sistem Produk</p>
+          <p className="text-xs text-text-muted font-bold uppercase tracking-[0.2em] mt-1 transition-colors">Management Sistem Produk</p>
         </div>
         <button 
           onClick={() => {
@@ -154,7 +154,7 @@ export const Inventory = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="bg-surface-base/50 border-b border-surface-border transition-colors">
+              <tr className="bg-surface-base border-b border-surface-border transition-colors">
                 <th className="px-6 py-5 label-caps">{t('product')}</th>
                 <th className="px-6 py-5 label-caps">{t('category')}</th>
                 <th className="px-6 py-5 label-caps">{t('cost_price')}</th>
@@ -168,7 +168,7 @@ export const Inventory = () => {
                 <tr key={product.id} className="hover:bg-surface-base/50 transition-colors border-b border-surface-border last:border-0 group">
                   <td className="px-6 py-6">
                     <div className="font-bold text-text-heading group-hover:text-primary transition-colors text-sm tracking-tight">{product.name}</div>
-                    <div className="text-[11px] text-text-muted truncate w-64 mt-1 font-medium italic opacity-60 group-hover:opacity-100 transition-opacity">{product.description || t('no_description')}</div>
+                    <div className="text-[11px] text-text-muted truncate w-64 mt-1 font-medium italic group-hover:opacity-100 transition-all">{product.description || t('no_description')}</div>
                   </td>
                   <td className="px-6 py-6">
                     <span className="px-2.5 py-1 rounded-lg bg-surface-base border border-surface-border text-text-muted text-[10px] font-bold uppercase tracking-wider">
@@ -221,7 +221,7 @@ export const Inventory = () => {
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
         {filteredProducts.map((product) => (
-          <div key={product.id} className="glass-panel p-5 border-surface-border space-y-4">
+          <div key={product.id} className="glass-panel p-5 border-surface-border space-y-4 bg-surface-panel transition-colors">
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-bold text-text-heading text-base leading-tight mb-1">{product.name}</h4>
@@ -248,16 +248,16 @@ export const Inventory = () => {
             </div>
 
             {product.description && (
-              <p className="text-xs text-slate-500 italic font-medium leading-relaxed">{product.description}</p>
+              <p className="text-xs text-text-muted italic font-medium leading-relaxed transition-colors">{product.description}</p>
             )}
 
             <div className="grid grid-cols-2 gap-3 pt-2 border-t border-surface-border transition-colors">
               <div>
-                <span className="label-caps !text-[9px] block mb-1 opacity-60">Buy Price</span>
+                <span className="label-caps !text-[9px] block mb-1">Buy Price</span>
                 <span className="text-sm font-mono text-text-muted">{formatCurrency(product.buyPrice)}</span>
               </div>
               <div className="text-right">
-                <span className="label-caps !text-[9px] block mb-1 opacity-60">Sell Price</span>
+                <span className="label-caps !text-[9px] block mb-1">Sell Price</span>
                 <span className="text-sm font-bold font-mono text-text-heading tracking-tight">{formatCurrency(product.sellPrice)}</span>
                 {product.sellPrice !== product.buyPrice && (
                   <div className={cn(
