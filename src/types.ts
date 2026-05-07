@@ -35,6 +35,16 @@ export interface Transaction {
 
 export type CustomerReference = 'Offline' | 'Reseller' | 'WhatsApp' | 'Facebook' | 'Instagram' | 'TikTok' | 'Website';
 
+export type ExpenseCategory = 'Operational' | 'Marketing' | 'Salary' | 'Rent' | 'Utilities' | 'Equipment' | 'Other';
+
+export interface Expense {
+  id: string;
+  amount: number;
+  category: ExpenseCategory;
+  description: string;
+  date: number;
+}
+
 export interface Customer {
   id: string;
   name: string;

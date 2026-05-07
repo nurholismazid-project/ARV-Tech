@@ -12,7 +12,8 @@ import {
   DollarSign, 
   AlertTriangle,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  CreditCard
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -25,10 +26,13 @@ import {
 } from 'recharts';
 import { format, subDays, isSameDay } from 'date-fns';
 
-const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }: any) => (
+const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, description }: any) => (
   <div className="glass-panel p-5 rounded-xl border-slate-800/10">
     <div className="flex justify-between items-start mb-4">
-      <p className="label-caps">{title}</p>
+      <div>
+        <p className="label-caps">{title}</p>
+        {description && <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">{description}</p>}
+      </div>
       <div className={cn(
         "p-2 rounded-xl transition-colors",
         color === 'primary' ? 'bg-primary/10 text-primary' : `bg-${color}-500/10 text-${color}-500`
@@ -41,7 +45,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }: any) =
       {trend && (
         <span className={cn(
           "text-[10px] font-bold px-1.5 py-0.5 rounded-md",
-          trend === 'up' ? 'text-red-400 bg-red-400/10' : 'text-rose-400 bg-rose-400/10'
+          trend === 'up' ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'
         )}>
           {trend === 'up' ? '↑' : '↓'} {trendValue}
         </span>
@@ -51,16 +55,17 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }: any) =
 );
 
 export const Dashboard = () => {
-  const { products, transactions, formatCurrency, t } = useApp();
+  const { products, transactions, expenses, formatCurrency, t } = useApp();
 
   const stats = useMemo(() => {
     const totalSales = transactions.reduce((acc, t) => acc + t.totalAmount, 0);
     const totalProfit = transactions.reduce((acc, t) => acc + t.totalProfit, 0);
+    const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
     const lowStockCount = products.filter(p => p.stock < 5).length;
     const totalProducts = products.length;
 
-    return { totalSales, totalProfit, lowStockCount, totalProducts };
-  }, [products, transactions]);
+    return { totalSales, totalProfit, totalExpenses, lowStockCount, totalProducts };
+  }, [products, transactions, expenses]);
 
   const topProducts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -86,18 +91,19 @@ export const Dashboard = () => {
       tx.items.forEach(item => {
          const product = products.find(p => p.id === item.productId);
          if (product) {
-            categoryTotals[product.category] = (categoryTotals[product.category] || 0) + item.totalPrice;
+            const itemRevenue = Number(item.totalPrice) || (Number(item.quantity) * Number(item.price)) || 0;
+            categoryTotals[product.category] = (categoryTotals[product.category] || 0) + itemRevenue;
          }
       });
     });
     
-    const totalRevenue = Object.values(categoryTotals).reduce((a, b) => a + b, 0) || 1;
+    const totalRevenue = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
     const colors = ['bg-primary', 'bg-red-600', 'bg-rose-700', 'bg-red-800', 'bg-rose-900'];
     
     return Object.entries(categoryTotals)
       .map(([name, value], i) => ({
         name: t(`cat_${name}` as any),
-        pct: Math.round((value / totalRevenue) * 100),
+        pct: totalRevenue > 0 ? Math.round((value / totalRevenue) * 100) : 0,
         color: colors[i % colors.length]
       }))
       .sort((a, b) => b.pct - a.pct);
@@ -124,7 +130,7 @@ export const Dashboard = () => {
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title={t('daily_revenue')} 
+          title={t('total_revenue' as any)} 
           value={formatCurrency(stats.totalSales)} 
           icon={DollarSign} 
           color="primary"
@@ -133,14 +139,15 @@ export const Dashboard = () => {
         />
         <StatCard 
           title={t('monthly_profit')} 
-          value={formatCurrency(stats.totalProfit)} 
+          value={formatCurrency(stats.totalProfit - stats.totalExpenses)} 
+          description={t('net_profit' as any)}
           icon={TrendingUp} 
           color="primary" 
         />
         <StatCard 
-          title={t('low_stock_alerts')} 
-          value={`${stats.lowStockCount} ${t('items')}`} 
-          icon={AlertTriangle} 
+          title={t('expenses')} 
+          value={formatCurrency(stats.totalExpenses)} 
+          icon={CreditCard} 
           color="primary" 
         />
         <StatCard 
@@ -206,6 +213,60 @@ export const Dashboard = () => {
                 />
               </AreaChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 glass-panel p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+              <h3 className="heading-display">{t('product_inventory_summary')}</h3>
+              <p className="text-xs text-slate-500 mt-2 font-medium">Monitoring stock levels and pricing accuracy</p>
+            </div>
+            <button className="text-[10px] font-bold text-primary uppercase tracking-widest px-4 py-2 bg-primary/5 border border-primary/20 rounded-xl hover:bg-primary hover:text-white transition-all">
+              {t('view_all_products')}
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/[0.03]">
+                  <th className="pb-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">{t('product')}</th>
+                  <th className="pb-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">{t('sell_price')}</th>
+                  <th className="pb-4 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-center">{t('stock')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.02]">
+                {products.slice(0, 6).map((product) => (
+                  <tr key={product.id} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4">
+                      <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">{product.name}</p>
+                      <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tight mt-0.5">{t(`cat_${product.category}` as any)}</p>
+                    </td>
+                    <td className="py-4 font-mono text-sm font-medium text-slate-300">
+                      {formatCurrency(product.sellPrice)}
+                    </td>
+                    <td className="py-4">
+                      <div className="flex justify-center">
+                        <span className={cn(
+                          "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight",
+                          product.stock < 5 ? "bg-[#FF0000]/10 text-[#FF0000]" : "bg-emerald-500/10 text-emerald-500"
+                        )}>
+                          {product.stock} {t('unit')}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {products.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-12 text-center text-slate-600 italic text-sm">
+                      {t('no_product_found')}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -284,8 +345,8 @@ export const Dashboard = () => {
                              <p className="text-xs text-zinc-500 uppercase">{t(`cat_${item.category}` as any)}</p>
                           </div>
                           <div className="text-right leading-none">
-                             <p className="text-sm font-bold text-rose-500">{item.stock}</p>
-                             <p className="text-xs text-rose-500/60 uppercase">{t('unit')}</p>
+                             <p className="text-sm font-bold text-[#FF0000]">{item.stock}</p>
+                             <p className="text-xs text-[#FF0000]/60 uppercase">{t('unit')}</p>
                           </div>
                        </div>
                     ))}

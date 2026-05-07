@@ -11,7 +11,6 @@ import {
   Search, 
   Edit2, 
   Trash2, 
-  Filter,
   Package,
   X
 } from 'lucide-react';
@@ -19,6 +18,27 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
 const categories: Category[] = ['Laptop', 'Computer', 'Accessories', 'CCTV', 'Service'];
+
+interface CategoryTabProps {
+  id: Category | 'All';
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+const CategoryTab: React.FC<CategoryTabProps> = ({ label, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "flex-1 md:flex-none px-6 py-3 rounded-xl font-bold transition-all text-xs uppercase tracking-widest border",
+      active 
+        ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(244,63,94,0.1)]" 
+        : "bg-transparent border-white/5 text-slate-500 hover:border-white/10 hover:text-slate-300"
+    )}
+  >
+    {label}
+  </button>
+);
 
 export const Inventory = () => {
   const { products, addProduct, updateProduct, deleteProduct, formatCurrency, t } = useApp();
@@ -70,47 +90,66 @@ export const Inventory = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Controls */}
-      <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5 space-y-4 md:space-y-0 md:flex md:items-center md:gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            type="text"
-            placeholder={t('search_products')}
-            className="input-field w-full !pl-12 py-3 text-sm font-medium"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <div className="space-y-8">
+      {/* Page header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h2 className="heading-display">{t('inventory')}</h2>
+          <p className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Management Sistem Produk</p>
         </div>
-        
-        <div className="flex gap-3">
-          <div className="relative w-full sm:w-48">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-            <select
-              className="input-field !pl-10 appearance-none pr-8 w-full text-sm font-medium h-11"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value as any)}
-            >
-              <option value="All">{t('all_categories')}</option>
-              {categories.map(c => <option key={c} value={c}>{t(`cat_${c}` as any)}</option>)}
-            </select>
-          </div>
-          <button 
-            onClick={() => {
-              setEditingId(null);
-              setIsModalOpen(true);
-            }} 
-            className="btn-primary flex items-center gap-2 whitespace-nowrap justify-center h-10 px-5 text-xs font-bold uppercase tracking-widest shrink-0"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            {t('add_product')}
-          </button>
-        </div>
+        <button 
+          onClick={() => {
+            setEditingId(null);
+            setFormData({ name: '', category: 'Accessories', buyPrice: 0, sellPrice: 0, stock: 0, description: '' });
+            setIsModalOpen(true);
+          }} 
+          className="btn-primary flex items-center gap-2 h-14 px-8 text-sm font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
+        >
+          <Plus className="w-4 h-4" />
+          {t('add_product')}
+        </button>
       </div>
 
-      {/* Table */}
-      <div className="glass-panel overflow-hidden border-white/5">
+      {/* Category Navigation - "Halaman Terpisah" feel */}
+      <div className="flex flex-wrap gap-3">
+        <CategoryTab 
+          id="All" 
+          label={t('all_categories')} 
+          active={selectedCategory === 'All'}
+          onClick={() => setSelectedCategory('All')}
+        />
+        {categories.map(c => (
+          <CategoryTab 
+            key={c} 
+            id={c} 
+            label={t(`cat_${c}` as any)} 
+            active={selectedCategory === c}
+            onClick={() => setSelectedCategory(c)}
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        {/* Search Bar */}
+        <div className="glass-panel p-4 border-white/5 group">
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+              <Search className="w-5 h-5" />
+            </div>
+            <input
+              type="text"
+              placeholder={t('search_products')}
+              className="input-field w-full !pl-14 h-14 bg-slate-900/50 text-base font-medium"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="space-y-6">
+          {/* Desktop Table View */}
+      <div className="hidden md:block glass-panel overflow-hidden border-white/5">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
@@ -123,59 +162,125 @@ export const Inventory = () => {
                 <th className="px-6 py-5 label-caps text-right">{t('actions')}</th>
               </tr>
             </thead>
-          <tbody className="divide-y divide-zinc-800/50">
-            {filteredProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-slate-800/5 transition-colors border-b border-white/[0.02] last:border-0 group">
-                <td className="px-6 py-6">
-                  <div className="font-bold text-white group-hover:text-primary transition-colors text-sm tracking-tight">{product.name}</div>
-                  <div className="text-[11px] text-slate-500 truncate w-64 mt-1 font-medium italic opacity-60 group-hover:opacity-100 transition-opacity">{product.description || t('no_description')}</div>
-                </td>
-                <td className="px-6 py-6">
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+            <tbody className="divide-y divide-zinc-800/50">
+              {filteredProducts.map((product) => (
+                <tr key={product.id} className="hover:bg-slate-800/5 transition-colors border-b border-white/[0.02] last:border-0 group">
+                  <td className="px-6 py-6">
+                    <div className="font-bold text-white group-hover:text-primary transition-colors text-sm tracking-tight">{product.name}</div>
+                    <div className="text-[11px] text-slate-500 truncate w-64 mt-1 font-medium italic opacity-60 group-hover:opacity-100 transition-opacity">{product.description || t('no_description')}</div>
+                  </td>
+                  <td className="px-6 py-6">
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                      {t(`cat_${product.category}` as any)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5 text-sm font-mono text-slate-500">{formatCurrency(product.buyPrice)}</td>
+                  <td className="px-6 py-5 text-sm font-mono text-white font-medium">
+                    <div>{formatCurrency(product.sellPrice)}</div>
+                    {product.sellPrice !== product.buyPrice && (
+                      <div className={cn(
+                        "text-xs font-bold mt-0.5",
+                        product.sellPrice > product.buyPrice ? "text-emerald-500" : "text-rose-500"
+                      )}>
+                        {product.sellPrice > product.buyPrice ? '+' : ''}{Math.round(((product.sellPrice - product.buyPrice) / (product.sellPrice || 1)) * 100)}% Margin
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-5 text-center">
+                    <span className={cn(
+                      "text-sm font-bold font-mono px-2 py-0.5 rounded flex items-center justify-center gap-1 mx-auto w-fit",
+                      product.stock < 5 ? "text-[#FF0000] bg-[#FF0000]/10" : "text-emerald-500 bg-emerald-500/10"
+                    )}>
+                      {product.stock}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5 text-right">
+                    <div className="flex justify-end gap-1">
+                      <button onClick={() => handleEdit(product)} className="text-slate-500 hover:text-white hover:bg-slate-800 p-2 rounded-lg transition-all">
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => deleteProduct(product.id)} className="text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 p-2 rounded-lg transition-all">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filteredProducts.length === 0 && (
+            <div className="py-20 text-center text-zinc-500">
+              <Package className="w-12 h-12 mx-auto mb-4 opacity-10" />
+              <p>{t('no_product_found')}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredProducts.map((product) => (
+          <div key={product.id} className="glass-panel p-5 border-white/5 space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="font-bold text-white text-base leading-tight mb-1">{product.name}</h4>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-white/5 text-slate-500 text-[9px] font-bold uppercase tracking-wider">
                     {t(`cat_${product.category}` as any)}
                   </span>
-                </td>
-                <td className="px-6 py-5 text-sm font-mono text-slate-500">{formatCurrency(product.buyPrice)}</td>
-                <td className="px-6 py-5 text-sm font-mono text-white font-medium">
-                  <div>{formatCurrency(product.sellPrice)}</div>
-                  {product.sellPrice > product.buyPrice && (
-                    <div className="text-xs text-primary font-bold mt-0.5">
-                      +{Math.round(((product.sellPrice - product.buyPrice) / product.sellPrice) * 100)}% Margin
-                    </div>
-                  )}
-                </td>
-                <td className="px-6 py-5 text-center">
                   <span className={cn(
-                    "text-sm font-bold font-mono px-2 py-0.5 rounded flex items-center justify-center gap-1 mx-auto w-fit",
-                    product.stock < 5 ? "text-rose-400 bg-rose-400/10" : "text-primary bg-primary/10"
+                    "text-[10px] font-bold font-mono px-2 py-0.5 rounded flex items-center gap-1",
+                    product.stock < 5 ? "text-[#FF0000] bg-[#FF0000]/10" : "text-emerald-500 bg-emerald-500/10"
                   )}>
-                    {product.stock}
+                    Stock: {product.stock}
                   </span>
-                </td>
-                <td className="px-6 py-5 text-right">
-                  <div className="flex justify-end gap-1">
-                    <button onClick={() => handleEdit(product)} className="text-slate-500 hover:text-white hover:bg-slate-800 p-2 rounded-lg transition-all">
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => deleteProduct(product.id)} className="text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 p-2 rounded-lg transition-all">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filteredProducts.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-6 py-20 text-center text-zinc-500">
-                  <Package className="w-12 h-12 mx-auto mb-4 opacity-10" />
-                  <p>{t('no_product_found')}</p>
-                </td>
-              </tr>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => handleEdit(product)} className="text-slate-500 hover:text-white p-2 rounded-lg bg-white/5">
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => deleteProduct(product.id)} className="text-slate-500 hover:text-rose-400 p-2 rounded-lg bg-white/5">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {product.description && (
+              <p className="text-xs text-slate-500 italic font-medium leading-relaxed">{product.description}</p>
             )}
-          </tbody>
-        </table>
+
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/[0.03]">
+              <div>
+                <span className="label-caps !text-[9px] block mb-1 opacity-60">Buy Price</span>
+                <span className="text-sm font-mono text-slate-400">{formatCurrency(product.buyPrice)}</span>
+              </div>
+              <div className="text-right">
+                <span className="label-caps !text-[9px] block mb-1 opacity-60">Sell Price</span>
+                <span className="text-sm font-bold font-mono text-white tracking-tight">{formatCurrency(product.sellPrice)}</span>
+                {product.sellPrice !== product.buyPrice && (
+                  <div className={cn(
+                    "text-[10px] font-bold mt-1",
+                    product.sellPrice > product.buyPrice ? "text-emerald-500" : "text-rose-500"
+                  )}>
+                    {product.sellPrice > product.buyPrice ? '+' : ''}{Math.round(((product.sellPrice - product.buyPrice) / (product.sellPrice || 1)) * 100)}% Margin
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {filteredProducts.length === 0 && (
+          <div className="py-12 text-center text-zinc-500 glass-panel border-white/5">
+            <Package className="w-10 h-10 mx-auto mb-3 opacity-10" />
+            <p className="text-sm font-medium">{t('no_product_found')}</p>
+          </div>
+        )}
       </div>
-    </div>
+
+        </div>
+      </div>
 
       {/* Modal */}
       <AnimatePresence>
@@ -240,25 +345,35 @@ export const Inventory = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{t('cost_price')}</label>
-                    <input
-                      required
-                      type="number"
-                      className="input-field w-full"
-                      placeholder="Rp"
-                      value={formData.buyPrice}
-                      onChange={(e) => setFormData({ ...formData, buyPrice: parseInt(e.target.value) || 0 })}
-                    />
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+                        <span className="text-xs font-bold mr-1">Rp</span>
+                      </div>
+                      <input
+                        required
+                        type="number"
+                        className="input-field w-full !pl-12"
+                        placeholder="0"
+                        value={formData.buyPrice}
+                        onChange={(e) => setFormData({ ...formData, buyPrice: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{t('sale_price')}</label>
-                    <input
-                      required
-                      type="number"
-                      className="input-field w-full"
-                      placeholder="Rp"
-                      value={formData.sellPrice}
-                      onChange={(e) => setFormData({ ...formData, sellPrice: parseInt(e.target.value) || 0 })}
-                    />
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+                        <span className="text-xs font-bold mr-1">Rp</span>
+                      </div>
+                      <input
+                        required
+                        type="number"
+                        className="input-field w-full !pl-12"
+                        placeholder="0"
+                        value={formData.sellPrice}
+                        onChange={(e) => setFormData({ ...formData, sellPrice: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
                   </div>
                 </div>
 

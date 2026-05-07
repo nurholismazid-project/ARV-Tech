@@ -112,12 +112,14 @@ export const Sales = () => {
       {/* Product Selection */}
       <div className="lg:col-span-2 space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-xl border border-white/5">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <div className="relative flex-1 w-full group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+              <Search className="w-4 h-4" />
+            </div>
             <input
               type="text"
               placeholder={t('search_products')}
-              className="input-field w-full !pl-12 py-3.5 text-sm font-medium tracking-tight"
+              className="input-field w-full !pl-14 h-14 bg-slate-900/50 text-sm font-medium tracking-tight"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -140,7 +142,7 @@ export const Sales = () => {
                 <span className="label-caps block mb-1.5">{t('stock')}</span>
                 <span className={cn(
                    "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide",
-                   product.stock < 5 ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-primary/10 text-primary border border-primary/20'
+                   product.stock < 5 ? 'bg-[#FF0000]/10 text-[#FF0000] border border-[#FF0000]/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                 )}>
                   {product.stock} {t('unit')}
                 </span>
@@ -177,7 +179,7 @@ export const Sales = () => {
                <input
                 type="text"
                 placeholder={t('general_customer')}
-                className="input-field w-full !pl-12 text-sm font-medium"
+                className="input-field w-full !pl-14 text-sm font-medium"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />

@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Product, Transaction, Category, Customer } from '../types';
+import { Product, Transaction, Category, Customer, Expense } from '../types';
 import { translations, Language, TranslationKey } from '../translations';
 import { supabase as initialSupabase, getSupabaseClient } from '../lib/supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
@@ -13,6 +13,7 @@ interface AppContextType {
   products: Product[];
   transactions: Transaction[];
   customers: Customer[];
+  expenses: Expense[];
   language: Language;
   isLoading: boolean;
   isConnected: boolean;
@@ -25,6 +26,9 @@ interface AppContextType {
   addCustomer: (customer: Omit<Customer, 'id' | 'updatedAt'>) => Promise<void>;
   updateCustomer: (id: string, customer: Partial<Customer>) => Promise<void>;
   deleteCustomer: (id: string) => Promise<void>;
+  addExpense: (expense: Omit<Expense, 'id' | 'date'>) => Promise<void>;
+  updateExpense: (id: string, expense: Partial<Expense>) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
   addTransaction: (transaction: Omit<Transaction, 'id' | 'date'>) => Promise<void>;
   formatCurrency: (amount: number) => string;
 }
@@ -35,6 +39,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [products, setProducts] = useState<Product[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [language, setLanguageState] = useState<Language>('id');
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
@@ -60,8 +65,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (productsData && productsData.length > 0) {
         setProducts(productsData);
       } else {
-        const savedProducts = localStorage.getItem('arv_tech_products');
-        if (savedProducts) setProducts(JSON.parse(savedProducts));
+        const savedProductsStr = localStorage.getItem('arv_tech_products');
+        const savedProducts = savedProductsStr ? JSON.parse(savedProductsStr) : [];
+        if (savedProducts && savedProducts.length > 0) {
+          setProducts(savedProducts);
+        } else {
+          // Sample Initial Data matching user screenshot
+          const sampleProducts: Product[] = [
+            { id: crypto.randomUUID(), name: 'Laptop ASUS ROG G16', description: 'Intel Core i9, RTX 4060, 16GB RAM', buyPrice: 15000000, sellPrice: 18500000, stock: 4, category: 'Laptop', updatedAt: Date.now() },
+            { id: crypto.randomUUID(), name: 'SSD Samsung 980 Pro 1TB', description: 'NVMe Gen4 M.2 SSD', buyPrice: 1200000, sellPrice: 1650000, stock: 2, category: 'Accessories', updatedAt: Date.now() },
+            { id: crypto.randomUUID(), name: 'PC Gaming ARV Build RTX 4060', description: 'Custom ARV Gaming Rig', buyPrice: 10000000, sellPrice: 13500000, stock: 3, category: 'Computer', updatedAt: Date.now() },
+            { id: crypto.randomUUID(), name: 'CCTV Hikvision 5MP', description: 'Outdoor IP Camera', buyPrice: 450000, sellPrice: 650000, stock: 15, category: 'CCTV', updatedAt: Date.now() },
+            { id: crypto.randomUUID(), name: 'Service Laptop Standard', description: 'Cleaning & Thermal Paste', buyPrice: 0, sellPrice: 150000, stock: 99, category: 'Service', updatedAt: Date.now() },
+          ];
+          setProducts(sampleProducts);
+
+          // Add a sample transaction to match the dashboard in the screenshot
+          const sampleTransactions: Transaction[] = [
+            {
+              id: crypto.randomUUID(),
+              date: Date.now(),
+              totalAmount: 18500000,
+              totalProfit: 3500000,
+              customerName: 'Budi Santoso',
+              items: [
+                {
+                  productId: sampleProducts[0].id,
+                  name: sampleProducts[0].name,
+                  quantity: 1,
+                  price: 18500000,
+                  totalPrice: 18500000
+                }
+              ]
+            }
+          ];
+          setTransactions(sampleTransactions);
+          localStorage.setItem('arv_tech_transactions', JSON.stringify(sampleTransactions));
+          localStorage.setItem('arv_tech_products', JSON.stringify(sampleProducts));
+        }
       }
 
       // 2. Fetch Transactions
@@ -84,7 +125,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*');
       
       if (customersError) {
-        // If not connected to real supabse or table missing, fallback
         const savedCustomers = localStorage.getItem('arv_tech_customers');
         if (savedCustomers) setCustomers(JSON.parse(savedCustomers));
       } else if (customersData && customersData.length > 0) {
@@ -94,13 +134,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (savedCustomers) setCustomers(JSON.parse(savedCustomers));
       }
 
+      // 4. Fetch Expenses
+      const { data: expensesData, error: expensesError } = await client
+        .from('expenses')
+        .select('*')
+        .order('date', { ascending: false });
+      
+      if (expensesError) {
+        const savedExpenses = localStorage.getItem('arv_tech_expenses');
+        if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
+      } else if (expensesData && expensesData.length > 0) {
+        setExpenses(expensesData);
+      } else {
+        const savedExpenses = localStorage.getItem('arv_tech_expenses');
+        if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
+      }
+
     } catch (error) {
       console.error('Database error:', error);
       setIsConnected(false);
       const savedProducts = localStorage.getItem('arv_tech_products');
       const savedTransactions = localStorage.getItem('arv_tech_transactions');
+      const savedExpenses = localStorage.getItem('arv_tech_expenses');
       if (savedProducts) setProducts(JSON.parse(savedProducts));
       if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+      if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
     } finally {
       const savedLanguage = localStorage.getItem('arv_tech_language') as Language;
       if (savedLanguage && (savedLanguage === 'id' || savedLanguage === 'en')) {
@@ -150,8 +208,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('arv_tech_products', JSON.stringify(products));
       localStorage.setItem('arv_tech_transactions', JSON.stringify(transactions));
       localStorage.setItem('arv_tech_customers', JSON.stringify(customers));
+      localStorage.setItem('arv_tech_expenses', JSON.stringify(expenses));
     }
-  }, [products, transactions, customers, isLoading]);
+  }, [products, transactions, customers, expenses, isLoading]);
 
   useEffect(() => {
     localStorage.setItem('arv_tech_language', language);
@@ -245,6 +304,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const addExpense = async (expenseData: Omit<Expense, 'id' | 'date'>) => {
+    const newExpense = {
+      ...expenseData,
+      id: crypto.randomUUID(),
+      date: Date.now(),
+    };
+    
+    try {
+      const { data, error } = await supabaseClient.from('expenses').insert([newExpense]).select();
+      if (error) throw error;
+      if (data) setExpenses((prev) => [data[0], ...prev]);
+    } catch (error) {
+      console.error('Error adding expense:', error);
+      setExpenses((prev) => [newExpense, ...prev]);
+    }
+  };
+
+  const updateExpense = async (id: string, expenseData: Partial<Expense>) => {
+    try {
+      const { error } = await supabaseClient.from('expenses').update(expenseData).eq('id', id);
+      if (error) throw error;
+      setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, ...expenseData } : e)));
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, ...expenseData } : e)));
+    }
+  };
+
+  const deleteExpense = async (id: string) => {
+    try {
+      const { error } = await supabaseClient.from('expenses').delete().eq('id', id);
+      if (error) throw error;
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    }
+  };
+
   const addTransaction = async (transactionData: Omit<Transaction, 'id' | 'date'>) => {
     const newTransaction = {
       ...transactionData,
@@ -298,6 +396,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         products,
         transactions,
         customers,
+        expenses,
         language,
         isLoading,
         isConnected,
@@ -310,6 +409,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCustomer,
         updateCustomer,
         deleteCustomer,
+        addExpense,
+        updateExpense,
+        deleteExpense,
         addTransaction,
         formatCurrency,
       }}

@@ -11,6 +11,7 @@ import { Inventory } from './components/Inventory';
 import { Sales } from './components/Sales';
 import { History } from './components/History';
 import { Customers } from './components/Customers';
+import { Expenses } from './components/Expenses';
 import { 
   AlertCircle, 
   ChevronRight, 
@@ -240,6 +241,8 @@ export function MainApp() {
         return <History />;
       case 'customers':
         return <Customers />;
+      case 'expenses':
+        return <Expenses />;
       case 'settings':
         return <SettingsView />;
       default:

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -17,7 +17,8 @@ import {
   ChevronRight,
   TrendingUp,
   AlertCircle,
-  Users
+  Users,
+  CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -59,6 +60,14 @@ interface LayoutProps {
 
 export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => {
   const { t, language } = useApp();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-surface-base">
@@ -104,6 +113,12 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
             active={currentView === 'customers'} 
             onClick={() => onViewChange('customers')} 
           />
+          <NavItem 
+            icon={CreditCard} 
+            label={t('expenses')} 
+            active={currentView === 'expenses'} 
+            onClick={() => onViewChange('expenses')} 
+          />
         </nav>
 
         <div className="mt-auto pt-6 border-t border-surface-border">
@@ -124,6 +139,7 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
           { id: 'inventory', icon: Package },
           { id: 'history', icon: History },
           { id: 'customers', icon: Users },
+          { id: 'expenses', icon: CreditCard },
           { id: 'settings', icon: Settings },
         ].map((item) => (
           <button
@@ -152,8 +168,13 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
             
             <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
                <div className="text-left md:text-right">
-                 <p className="text-sm font-medium text-slate-300">
-                    {new Date().toLocaleDateString(language === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'short' })}
+                 <p className="text-sm font-bold text-white font-mono tracking-wider">
+                    {currentTime.toLocaleTimeString(language === 'id' ? 'id-ID' : 'en-GB', { 
+                      hour: '2-digit', 
+                      minute: '2-digit', 
+                      second: '2-digit',
+                      hour12: false
+                    })}
                  </p>
                  <div className="flex items-center gap-2 justify-start md:justify-end mt-0.5">
                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

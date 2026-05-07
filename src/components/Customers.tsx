@@ -103,12 +103,14 @@ export const Customers = () => {
     <div className="space-y-6">
       {/* Controls */}
       <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5 space-y-4 md:space-y-0 md:flex md:items-center md:gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        <div className="relative flex-1 group">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+            <Search className="w-4 h-4" />
+          </div>
           <input
             type="text"
             placeholder={t('search_customers')}
-            className="input-field w-full !pl-12 py-3 text-sm font-medium"
+            className="input-field w-full !pl-14 h-12 bg-slate-900/50"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -270,9 +272,9 @@ export const Customers = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="label-caps ml-2">{t('customer_category')}</label>
-                    <div className="relative">
+                    <div className="relative group">
                       <select
-                        className="input-field w-full h-12 appearance-none cursor-pointer pr-10"
+                        className="input-field w-full h-12 appearance-none cursor-pointer !pl-4 pr-10"
                         value={formData.reference}
                         onChange={(e) => setFormData({ ...formData, reference: e.target.value as CustomerReference })}
                       >
@@ -280,7 +282,7 @@ export const Customers = () => {
                           <option key={opt} value={opt} className="bg-slate-900">{opt}</option>
                         ))}
                       </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                         <Tag className="w-4 h-4" />
                       </div>
                     </div>
