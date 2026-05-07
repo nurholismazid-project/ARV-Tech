@@ -90,28 +90,28 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
             onClick={() => onViewChange('dashboard')} 
           />
           <NavItem 
-            icon={ShoppingCart} 
-            label={t('sales')} 
-            active={currentView === 'sales'} 
-            onClick={() => onViewChange('sales')} 
-          />
-          <NavItem 
             icon={Package} 
             label={t('inventory')} 
             active={currentView === 'inventory'} 
             onClick={() => onViewChange('inventory')} 
           />
           <NavItem 
-            icon={History} 
-            label={t('history')} 
-            active={currentView === 'history'} 
-            onClick={() => onViewChange('history')} 
-          />
-          <NavItem 
             icon={Users} 
             label={t('customers')} 
             active={currentView === 'customers'} 
             onClick={() => onViewChange('customers')} 
+          />
+          <NavItem 
+            icon={ShoppingCart} 
+            label={t('sales')} 
+            active={currentView === 'sales'} 
+            onClick={() => onViewChange('sales')} 
+          />
+          <NavItem 
+            icon={History} 
+            label={t('history')} 
+            active={currentView === 'history'} 
+            onClick={() => onViewChange('history')} 
           />
           <NavItem 
             icon={CreditCard} 
@@ -135,10 +135,10 @@ export const Layout = ({ children, currentView, onViewChange }: LayoutProps) => 
       <nav className="lg:hidden fixed bottom-6 left-6 right-6 h-16 bg-[#0b0d11]/80 backdrop-blur-xl border border-surface-border rounded-2xl flex items-center justify-around px-2 z-50 shadow-2xl">
         {[
           { id: 'dashboard', icon: LayoutDashboard },
-          { id: 'sales', icon: ShoppingCart },
           { id: 'inventory', icon: Package },
-          { id: 'history', icon: History },
           { id: 'customers', icon: Users },
+          { id: 'sales', icon: ShoppingCart },
+          { id: 'history', icon: History },
           { id: 'expenses', icon: CreditCard },
           { id: 'settings', icon: Settings },
         ].map((item) => (
