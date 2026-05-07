@@ -182,19 +182,19 @@ export const Sales = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-180px)] lg:h-[calc(100vh-160px)] -mx-4 -mt-4 md:-mx-8 md:-mt-8 lg:-mx-10 lg:-mt-10 overflow-hidden bg-surface-base">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-140px)] md:h-[calc(100vh-180px)] lg:h-[calc(100vh-160px)] -mx-4 -mt-4 md:-mx-8 md:-mt-8 lg:-mx-10 lg:-mt-10 overflow-hidden bg-surface-base">
       {/* Product Selection (Left) */}
-      <div className="flex-1 md:flex-[0.6] lg:flex-[0.7] flex flex-col border-r border-surface-border bg-surface-base/50">
+      <div className="flex-[1.4] md:flex-[0.6] lg:flex-[0.7] flex flex-col border-r border-surface-border bg-surface-base/50">
         {/* Sticky Search & Filter */}
-        <div className="p-4 border-b border-surface-border bg-surface-panel/80 backdrop-blur-md sticky top-0 z-10 flex flex-col xl:flex-row gap-3">
+        <div className="p-3 md:p-4 border-b border-surface-border bg-surface-panel/80 backdrop-blur-md sticky top-0 z-10 flex flex-col xl:flex-row gap-2 md:gap-3">
           <div className="relative flex-1 group">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
+            <div className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
               <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
               placeholder={t('search_products')}
-              className="input-field w-full !pl-12 h-11 bg-surface-base text-sm font-medium tracking-tight transition-colors border-surface-border focus:border-primary/50"
+              className="input-field w-full !pl-10 md:!pl-12 h-10 md:h-11 bg-surface-base text-sm font-medium tracking-tight transition-colors border-surface-border focus:border-primary/50"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -204,7 +204,7 @@ export const Sales = () => {
              {['All', 'Laptop', 'Computer', 'Accessories', 'Service'].map(cat => (
                <button 
                 key={cat}
-                className="px-4 h-11 rounded-xl bg-surface-panel border border-surface-border text-[10px] font-black uppercase tracking-widest text-text-muted hover:border-primary/30 hover:text-primary transition-all whitespace-nowrap active:scale-95"
+                className="px-3 md:px-4 h-9 md:h-11 rounded-lg md:rounded-xl bg-surface-panel border border-surface-border text-[10px] font-black uppercase tracking-widest text-text-muted hover:border-primary/30 hover:text-primary transition-all whitespace-nowrap active:scale-95 shrink-0"
                >
                  {cat === 'All' ? 'Semua' : cat}
                </button>
@@ -213,8 +213,8 @@ export const Sales = () => {
         </div>
 
         {/* Scrollable Product Grid */}
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-surface-base/20">
-          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="flex-1 overflow-y-auto p-3 md:p-4 custom-scrollbar bg-surface-base/20">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 md:gap-3">
             {filteredProducts.map(product => (
               <motion.button
                 layout
@@ -224,28 +224,28 @@ export const Sales = () => {
                 whileTap={{ scale: 0.98 }}
                 className="group relative bg-surface-panel p-3 rounded-xl border border-surface-border hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all text-left flex flex-col gap-2"
               >
-                <div className="flex justify-between items-start gap-2">
-                  <span className="text-[8px] font-black uppercase tracking-[0.15em] text-text-muted/60 truncate">
+                <div className="flex justify-between items-start gap-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-[0.1em] text-text-muted/60 truncate">
                     {t(`cat_${product.category}` as any)}
                   </span>
                   <span className={cn(
-                    "px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide shrink-0",
+                    "px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wide shrink-0",
                     product.stock < 5 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                   )}>
                     {product.stock}
                   </span>
                 </div>
                 
-                <h4 className="text-[12px] font-bold text-text-heading group-hover:text-primary transition-colors leading-tight line-clamp-2 min-h-[2.5em]">
+                <h4 className="text-xs md:text-sm font-bold text-text-heading group-hover:text-primary transition-colors leading-tight line-clamp-2 min-h-[2.5em]">
                   {product.name}
                 </h4>
 
                 <div className="mt-auto flex items-end justify-between">
-                  <p className="text-[13px] font-black font-mono text-text-heading tracking-tighter">
+                  <p className="text-xs md:text-sm font-black font-mono text-text-heading tracking-tighter">
                     {formatRupiah(product.sellPrice)}
                   </p>
                   <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" />
                   </div>
                 </div>
               </motion.button>
@@ -260,7 +260,7 @@ export const Sales = () => {
       </div>
 
       {/* Cart & Checkout (Right) */}
-      <div className="flex-1 md:flex-[0.4] lg:flex-[0.3] flex flex-col bg-surface-panel shadow-2xl relative z-20 border-l border-surface-border">
+      <div className="flex-1 md:flex-[0.4] lg:flex-[0.3] flex flex-col bg-surface-panel shadow-2xl relative z-20 border-t md:border-t-0 md:border-l border-surface-border pb-24 md:pb-0">
         {/* Cart Header */}
         <div className="p-4 border-b border-surface-border flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -280,7 +280,7 @@ export const Sales = () => {
 
         {/* Customer Select */}
         <div className="p-4 bg-surface-base/30 border-b border-surface-border">
-          <label className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">{t('customer_name')}</label>
+          <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 block">{t('customer_name')}</label>
           <CustomerSearchSelect 
             value={customerName} 
             onChange={setCustomerName} 
@@ -301,11 +301,11 @@ export const Sales = () => {
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-4">
-                    <h4 className="text-[11px] font-bold text-text-heading line-clamp-1">{item.name}</h4>
-                    <p className="text-[10px] text-text-muted font-mono mt-0.5">{formatRupiah(item.price)}</p>
+                    <h4 className="text-xs font-bold text-text-heading line-clamp-1">{item.name}</h4>
+                    <p className="text-[11px] text-text-muted font-mono mt-0.5">{formatRupiah(item.price)}</p>
                   </div>
                   <button onClick={() => removeFromCart(item.productId)} className="text-text-muted hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
                 
@@ -313,19 +313,19 @@ export const Sales = () => {
                   <div className="flex items-center bg-surface-panel rounded-lg border border-surface-border overflow-hidden size-sm">
                     <button 
                       onClick={() => updateQuantity(item.productId, -1)}
-                      className="p-1 hover:bg-primary/10 text-text-muted hover:text-primary transition-colors"
+                      className="p-1 px-2 hover:bg-primary/10 text-text-muted hover:text-primary transition-colors"
                     >
-                      <Minus className="w-3 h-3" />
+                      <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-8 text-center text-[10px] font-black font-mono text-text-heading">{item.quantity}</span>
+                    <span className="w-8 text-center text-xs font-black font-mono text-text-heading">{item.quantity}</span>
                     <button 
                       onClick={() => updateQuantity(item.productId, 1)}
-                      className="p-1 hover:bg-primary/10 text-text-muted hover:text-primary transition-colors"
+                      className="p-1 px-2 hover:bg-primary/10 text-text-muted hover:text-primary transition-colors"
                     >
-                      <Plus className="w-3 h-3" />
+                      <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <p className="text-[11px] font-black text-text-heading font-mono">{formatRupiah(item.price * item.quantity)}</p>
+                  <p className="text-xs font-black text-text-heading font-mono">{formatRupiah(item.price * item.quantity)}</p>
                 </div>
               </motion.div>
             ))}
@@ -344,24 +344,24 @@ export const Sales = () => {
           <div className="grid grid-cols-2 gap-3">
              <div className="space-y-1.5 text-left">
                 <div className="flex justify-between">
-                  <label className="text-[9px] font-black text-text-muted uppercase tracking-widest">Diskon</label>
-                  <div className="flex gap-1">
-                    <button onClick={() => setDiscountType('percent')} className={cn("text-[8px] font-black", discountType === 'percent' ? "text-primary" : "text-text-muted opacity-40")}>%</button>
-                    <button onClick={() => setDiscountType('nominal')} className={cn("text-[8px] font-black", discountType === 'nominal' ? "text-primary" : "text-text-muted opacity-40")}>Rp</button>
+                  <label className="text-[10px] font-black text-text-muted uppercase tracking-widest">Diskon</label>
+                  <div className="flex gap-2">
+                    <button onClick={() => setDiscountType('percent')} className={cn("text-[9px] font-black", discountType === 'percent' ? "text-primary" : "text-text-muted opacity-40")}>%</button>
+                    <button onClick={() => setDiscountType('nominal')} className={cn("text-[9px] font-black", discountType === 'nominal' ? "text-primary" : "text-text-muted opacity-40")}>Rp</button>
                   </div>
                 </div>
                 <input
                   type="text"
-                  className="w-full bg-surface-base border border-surface-border rounded-lg h-9 px-3 text-[11px] font-mono font-bold focus:border-primary/50 text-right"
+                  className="w-full bg-surface-base border border-surface-border rounded-lg h-10 px-3 text-xs font-mono font-bold focus:border-primary/50 text-right"
                   value={discountType === 'percent' ? discountValue || '' : (discountValue ? formatRupiah(discountValue) : '')}
                   onChange={(e) => setDiscountValue(parseNumericValue(e.target.value))}
                 />
              </div>
              <div className="space-y-1.5 text-left">
-                <label className="text-[9px] font-black text-text-muted uppercase tracking-widest block">Uang Muka (DP)</label>
+                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block">Uang Muka (DP)</label>
                 <input
                   type="text"
-                  className="w-full bg-surface-base border border-surface-border rounded-lg h-9 px-3 text-[11px] font-mono font-bold focus:border-primary/50 text-right"
+                  className="w-full bg-surface-base border border-surface-border rounded-lg h-10 px-3 text-xs font-mono font-bold focus:border-primary/50 text-right"
                   value={downPayment ? formatRupiah(downPayment) : ''}
                   onChange={(e) => setDownPayment(parseNumericValue(e.target.value))}
                 />
@@ -369,11 +369,11 @@ export const Sales = () => {
           </div>
 
           <div className="space-y-1.5 text-left">
-             <label className="text-[9px] font-black text-text-muted uppercase tracking-widest block">Payment Method</label>
+             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block">Payment Method</label>
              <select 
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value as any)}
-              className="w-full bg-surface-base border border-surface-border rounded-lg h-9 px-3 text-[10px] font-black uppercase tracking-widest focus:border-primary/50"
+              className="w-full bg-surface-base border border-surface-border rounded-lg h-10 px-3 text-xs font-black uppercase tracking-widest focus:border-primary/50"
              >
                 <option value="Tunai">Tunai</option>
                 <option value="Transfer Bank">Transfer</option>
@@ -405,7 +405,7 @@ export const Sales = () => {
             )}
             <div className="pt-3 flex justify-between items-end border-t border-surface-border/50">
                <div className="text-left">
-                  <p className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">
+                  <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-1">
                     {remainingBalance > 0 ? "Sisa Tagihan" : "Total Bayar"}
                   </p>
                   <p className={cn(
@@ -416,7 +416,7 @@ export const Sales = () => {
                   </p>
                </div>
                <div className={cn(
-                 "px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-[0.1em]",
+                 "px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-[0.1em]",
                  remainingBalance > 0 ? "bg-primary/10 text-primary" : "bg-emerald-500/10 text-emerald-500"
                )}>
                  {remainingBalance > 0 ? "Piutang" : "Lunas"}

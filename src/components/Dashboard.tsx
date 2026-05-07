@@ -13,8 +13,11 @@ import {
   AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
-  CreditCard
+  CreditCard,
+  Sparkles,
+  Loader2
 } from 'lucide-react';
+import { generateInventoryInsights } from '../services/geminiService';
 import { 
   AreaChart, 
   Area, 
@@ -60,6 +63,66 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color, descript
     </div>
   </div>
 );
+
+const AIInsightsCard = ({ data }: { data: any }) => {
+  const [insights, setInsights] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+
+  const getInsights = async () => {
+    setLoading(true);
+    const result = await generateInventoryInsights(data);
+    setInsights(result || "No insights available.");
+    setLoading(false);
+  };
+
+  React.useEffect(() => {
+    if (data && !insights && !loading) {
+      getInsights();
+    }
+  }, [data]);
+
+  return (
+    <div className="glass-panel p-6 border-primary/20 bg-gradient-to-br from-surface-panel to-primary/5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+          </div>
+          <h3 className="text-sm font-black text-text-heading uppercase tracking-widest">Smart AI Insights</h3>
+        </div>
+        <button 
+          onClick={getInsights} 
+          disabled={loading}
+          className="p-1.5 rounded-lg hover:bg-primary/10 text-text-muted hover:text-primary transition-all disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <TrendingUp className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+      
+      <div className="relative min-h-[100px] flex flex-col justify-center">
+        {loading ? (
+          <div className="space-y-3">
+             <div className="h-4 bg-surface-base/50 rounded-lg animate-pulse w-[90%]" />
+             <div className="h-4 bg-surface-base/50 rounded-lg animate-pulse w-[75%]" />
+             <div className="h-4 bg-surface-base/50 rounded-lg animate-pulse w-[85%]" />
+          </div>
+        ) : (
+          <div className="prose prose-sm prose-invert max-w-none">
+            <div className="text-[11px] text-text-main leading-relaxed font-medium space-y-2 whitespace-pre-line">
+              {insights}
+            </div>
+            {!insights && (
+              <p className="text-[11px] text-text-muted italic">Click the icon to generate business insights.</p>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="mt-4 pt-4 border-t border-surface-border/50">
+        <p className="text-[9px] text-text-muted font-bold uppercase tracking-tight">Powered by Gemini 3.1 Pro Preview</p>
+      </div>
+    </div>
+  );
+};
 
 export const Dashboard = () => {
   const { products, transactions, expenses, formatCurrency, t } = useApp();
@@ -301,6 +364,18 @@ export const Dashboard = () => {
 
         {/* Categories & Top Products */}
         <div className="space-y-6">
+           <AIInsightsCard data={{
+             totalSales: stats.totalSales,
+             totalProfit: stats.totalProfit,
+             totalExpenses: stats.totalExpenses,
+             lowStockCount: stats.lowStockCount,
+             topProducts: topProducts.map(p => ({ 
+               name: p.product?.name, 
+               qty: p.qty,
+               category: p.product?.category
+             }))
+           }} />
+
            <div className="glass-panel p-6 flex flex-col">
               <h3 className="heading-display mb-8">{t('sales_by_category')}</h3>
               <div className="space-y-6 flex-1">

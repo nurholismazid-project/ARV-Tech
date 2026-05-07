@@ -230,7 +230,7 @@ export const ThemeSettingsSection: React.FC = () => {
                     )}
                   />
                   <div className="flex-1 flex gap-2">
-                    <input 
+                     <input 
                       type="text" 
                       value={currentEditingSettings.inactiveButtonColor}
                       onChange={(e) => handleSettingChange('inactiveButtonColor', e.target.value)}
@@ -239,18 +239,6 @@ export const ThemeSettingsSection: React.FC = () => {
                         configMode === 'light' && "bg-white border-slate-200 text-slate-900 focus:border-primary/50"
                       )}
                     />
-                    <button 
-                      onClick={() => handleSettingChange('inactiveButtonColor', 'transparent')}
-                      className={cn(
-                        "px-3 border rounded-xl text-[10px] font-bold uppercase transition-all",
-                        configMode === 'light' 
-                          ? "bg-slate-100 border-slate-200 text-slate-500 hover:text-primary hover:border-primary/30" 
-                          : "bg-surface-base border-surface-border text-text-muted hover:text-primary"
-                      )}
-                      title="Set to transparent"
-                    >
-                      Reset
-                    </button>
                   </div>
                 </div>
               </div>
@@ -284,7 +272,7 @@ export const ThemeSettingsSection: React.FC = () => {
               </div>
 
               {/* Chart Tooltip Settings */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className={cn(
                     "label-caps block ml-1 transition-colors",
