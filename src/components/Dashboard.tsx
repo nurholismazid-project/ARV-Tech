@@ -5,7 +5,7 @@
 
 import React, { useMemo } from 'react';
 import { useApp } from '../context/AppContext';
-import { cn } from '../lib/utils';
+import { cn, formatRupiah } from '../lib/utils';
 import { 
   TrendingUp, 
   Package, 
@@ -68,11 +68,25 @@ export const Dashboard = () => {
     const totalSales = transactions.reduce((acc, t) => acc + t.totalAmount, 0);
     const totalProfit = transactions.reduce((acc, t) => acc + t.totalProfit, 0);
     const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
+    const totalReceivable = transactions.reduce((acc, t) => acc + (t.remainingBalance || 0), 0);
     const lowStockCount = products.filter(p => p.stock < 5).length;
     const totalProducts = products.length;
 
-    return { totalSales, totalProfit, totalExpenses, lowStockCount, totalProducts };
+    return { totalSales, totalProfit, totalExpenses, totalReceivable, lowStockCount, totalProducts };
   }, [products, transactions, expenses]);
+
+  const receivablesWatchlist = useMemo(() => {
+    const today = Date.now();
+    return transactions
+      .filter(t => (t.remainingBalance || 0) > 0 && t.dueDate)
+      .map(t => {
+        const diffTime = (t.dueDate || 0) - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return { ...t, diffDays };
+      })
+      .sort((a, b) => (a.dueDate || 0) - (b.dueDate || 0))
+      .slice(0, 5);
+  }, [transactions]);
 
   const topProducts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -138,31 +152,33 @@ export const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           title={t('total_revenue' as any)} 
-          value={formatCurrency(stats.totalSales)} 
+          value={formatRupiah(stats.totalSales)} 
           icon={DollarSign} 
           color="primary"
           trend="up"
           trendValue="12%"
         />
         <StatCard 
+          title="Piutang (Sisa Tagihan)" 
+          value={formatRupiah(stats.totalReceivable)} 
+          description="Uang diluar yang belum cair"
+          icon={CreditCard} 
+          color="rose" 
+          isExpense={stats.totalReceivable > 0}
+        />
+        <StatCard 
           title={t('monthly_profit')} 
-          value={formatCurrency(stats.totalProfit - stats.totalExpenses)} 
+          value={formatRupiah(stats.totalProfit - stats.totalExpenses)} 
           description={t('net_profit' as any)}
           icon={TrendingUp} 
           color="primary" 
         />
         <StatCard 
           title={t('expenses')} 
-          value={formatCurrency(stats.totalExpenses)} 
+          value={formatRupiah(stats.totalExpenses)} 
           icon={CreditCard} 
           color="danger" 
           isExpense={true}
-        />
-        <StatCard 
-          title={t('total_products')} 
-          value={stats.totalProducts} 
-          icon={Package} 
-          color="primary" 
         />
       </div>
 
@@ -214,7 +230,7 @@ export const Dashboard = () => {
                   itemStyle={{ color: 'var(--primary-custom)', fontSize: '14px' }}
                   labelStyle={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}
                   cursor={{ stroke: 'var(--surface-border)' }}
-                  formatter={(val: number) => formatCurrency(val)}
+                  formatter={(val: number) => formatRupiah(val)}
                 />
                 <Area 
                   type="monotone" 
@@ -251,13 +267,13 @@ export const Dashboard = () => {
               </thead>
               <tbody className="divide-y divide-surface-border/50">
                 {products.slice(0, 6).map((product) => (
-                  <tr key={product.id} className="group hover:bg-surface-base/50 transition-colors">
+                  <tr key={`recent-prod-${product.id}`} className="group hover:bg-surface-base/50 transition-colors">
                     <td className="py-4">
                       <p className="text-sm font-bold text-text-heading group-hover:text-primary transition-colors">{product.name}</p>
                       <p className="text-[10px] text-text-muted font-bold uppercase tracking-tight mt-0.5">{t(`cat_${product.category}` as any)}</p>
                     </td>
                     <td className="py-4 font-mono text-sm font-medium text-text-main">
-                      {formatCurrency(product.sellPrice)}
+                      {formatRupiah(product.sellPrice)}
                     </td>
                     <td className="py-4">
                       <div className="flex justify-center">
@@ -289,7 +305,7 @@ export const Dashboard = () => {
               <h3 className="heading-display mb-8">{t('sales_by_category')}</h3>
               <div className="space-y-6 flex-1">
                  {salesByCategory.length > 0 ? salesByCategory.map((cat, i) => (
-                    <div key={i} className="space-y-2.5">
+                    <div key={`cat-stat-${cat.name}-${i}`} className="space-y-2.5">
                       <div className="flex justify-between items-center mb-1">
                         <span className="label-caps !text-text-muted">{cat.name}</span>
                         <span className="text-text-heading font-bold text-sm font-mono">{cat.pct}%</span>
@@ -310,7 +326,7 @@ export const Dashboard = () => {
                  <h3 className="label-caps mb-6">{t('top_selling')}</h3>
                  <div className="space-y-5">
                     {topProducts.length > 0 ? topProducts.map((item: any, i) => (
-                       <div key={i} className="flex items-center justify-between group cursor-default">
+                       <div key={`top-prod-${item.product?.id || i}`} className="flex items-center justify-between group cursor-default">
                           <div className="flex items-center gap-4">
                              <div className="w-9 h-9 rounded-xl bg-surface-base border border-surface-border flex items-center justify-center text-[11px] text-text-muted font-bold group-hover:border-primary/50 group-hover:text-primary transition-all">
                                 0{i + 1}
@@ -338,9 +354,47 @@ export const Dashboard = () => {
               </div>
            </div>
 
+           {/* Receivables Watchlist */}
+           {receivablesWatchlist.length > 0 && (
+              <div className="glass-panel p-6 border-primary/20 bg-primary/5 mt-6">
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-medium text-primary flex items-center gap-2">
+                       <CreditCard className="w-4 h-4" />
+                       Tagihan Jatuh Tempo
+                    </h3>
+                    <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full font-bold">
+                       {receivablesWatchlist.length}
+                    </span>
+                 </div>
+                 <div className="space-y-4">
+                    {receivablesWatchlist.map((item) => (
+                       <div key={`receivable-${item.id}`} className="flex justify-between items-center border-b border-primary/10 pb-3 last:border-0 last:pb-0">
+                          <div className="flex-1 min-w-0">
+                             <p className="text-sm font-bold text-text-heading truncate">{item.customerName}</p>
+                             <div className="flex items-center gap-2">
+                                <span className={cn(
+                                   "text-[9px] font-bold px-1.5 py-0.25 rounded uppercase tracking-wider",
+                                   (item.diffDays || 0) <= 0 ? "bg-rose-500 text-white" : 
+                                   (item.diffDays || 0) <= 3 ? "bg-amber-500 text-white" : "bg-primary/20 text-primary"
+                                )}>
+                                   {(item.diffDays || 0) <= 0 ? 'Overdue' : `${item.diffDays} Hari Lagi`}
+                                </span>
+                                <p className="text-[10px] text-text-muted">{format(new Date(item.dueDate || 0), 'd MMM yyyy')}</p>
+                             </div>
+                          </div>
+                          <div className="text-right ml-4">
+                             <p className="text-sm font-bold text-text-heading font-mono">{formatRupiah(item.remainingBalance || 0)}</p>
+                             <p className="text-[9px] text-text-muted font-bold uppercase tracking-tight">Sisa Tagihan</p>
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              </div>
+           )}
+
            {/* Low Stock Watchlist */}
            {lowStockItems.length > 0 && (
-              <div className="glass-panel p-6 border-rose-500/20 bg-rose-500/5">
+              <div className="glass-panel p-6 border-rose-500/20 bg-rose-500/5 mt-6">
                  <div className="flex justify-between items-center mb-6">
                     <h3 className="text-lg font-medium text-rose-500 flex items-center gap-2">
                        <AlertTriangle className="w-4 h-4" />
@@ -352,7 +406,7 @@ export const Dashboard = () => {
                  </div>
                  <div className="space-y-4">
                     {lowStockItems.map((item) => (
-                       <div key={item.id} className="flex justify-between items-center border-b border-rose-500/10 pb-3 last:border-0 last:pb-0">
+                       <div key={`lowstock-${item.id}`} className="flex justify-between items-center border-b border-rose-500/10 pb-3 last:border-0 last:pb-0">
                           <div>
                              <p className="text-sm font-medium text-text-heading">{item.name}</p>
                              <p className="text-xs text-text-muted uppercase">{t(`cat_${item.category}` as any)}</p>

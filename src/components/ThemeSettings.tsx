@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useApp } from '../context/AppContext';
 
-export const ThemeSettingsPanel: React.FC = () => {
+export const ThemeSettingsSection: React.FC = () => {
   const { 
     theme, 
     toggleTheme, 
@@ -29,11 +29,11 @@ export const ThemeSettingsPanel: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Configuration Mode Switcher */}
-      <div className="flex gap-2 p-1.5 bg-surface-panel border border-surface-border rounded-2xl w-fit">
+      <div className="flex flex-col sm:flex-row gap-2 p-1.5 bg-surface-panel border border-surface-border rounded-2xl w-full sm:w-fit">
         <button
           onClick={() => setConfigMode('light')}
           className={cn(
-            "flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all",
+            "flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all sm:flex-1",
             configMode === 'light' 
               ? "bg-primary text-white shadow-lg shadow-primary/20" 
               : "text-text-muted hover:text-text-heading"
@@ -45,7 +45,7 @@ export const ThemeSettingsPanel: React.FC = () => {
         <button
           onClick={() => setConfigMode('dark')}
           className={cn(
-            "flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all",
+            "flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all sm:flex-1",
             configMode === 'dark' 
               ? "bg-primary text-white shadow-lg shadow-primary/20" 
               : "text-text-muted hover:text-text-heading"
@@ -59,21 +59,38 @@ export const ThemeSettingsPanel: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Settings Controls */}
-        <div className="space-y-6">
-          <div className="glass-panel p-6 border-surface-border">
+        <div className={cn(
+          "space-y-6 transition-colors duration-500 p-1 rounded-3xl",
+          configMode === 'light' ? "bg-slate-50/50" : "bg-transparent"
+        )}>
+          <div className={cn(
+            "glass-panel p-4 sm:p-6 border-surface-border transition-all duration-300",
+            configMode === 'light' && "bg-white border-slate-200 shadow-sm"
+          )}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Palette className="w-5 h-5 text-primary" />
-                <h3 className="font-bold text-text-heading">
+                <Palette className={cn("w-5 h-5", configMode === 'light' ? "text-primary" : "text-primary")} />
+                <h3 className={cn(
+                  "font-bold text-sm sm:text-base transition-colors",
+                  configMode === 'light' ? "text-slate-900" : "text-text-heading"
+                )}>
                   {t('theme_colors' as any) || 'Warna Tema'} 
-                  <span className="text-text-muted text-xs font-normal ml-2">
+                  <span className={cn(
+                    "text-[10px] sm:text-xs font-normal ml-2 block sm:inline transition-colors",
+                    configMode === 'light' ? "text-slate-500" : "text-text-muted"
+                  )}>
                     ({configMode === 'light' ? 'Editing Light' : 'Editing Dark'})
                   </span>
                 </h3>
               </div>
               <button 
                 onClick={() => resetSettings(configMode)}
-                className="p-2 text-text-muted hover:text-primary transition-colors bg-surface-base rounded-lg"
+                className={cn(
+                  "p-2 transition-colors rounded-lg shrink-0",
+                  configMode === 'light' 
+                    ? "bg-slate-100 text-slate-400 hover:text-primary hover:bg-slate-200" 
+                    : "bg-surface-base text-text-muted hover:text-primary"
+                )}
                 title="Reset to Default"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -82,14 +99,30 @@ export const ThemeSettingsPanel: React.FC = () => {
 
             <div className="space-y-4">
               {/* Dark/Light Mode (Active App Theme) */}
-              <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-surface-border">
+              <div className={cn(
+                "flex flex-col xs:flex-row items-start xs:items-center justify-between p-3 rounded-xl border gap-3 transition-colors",
+                configMode === 'light' 
+                  ? "bg-slate-50 border-slate-200" 
+                  : "bg-surface-base border-surface-border"
+              )}>
                 <div className="space-y-0.5">
-                  <span className="text-sm font-medium text-text-main">{t('theme_mode' as any) || 'Mode Tema Aktif'}</span>
-                  <p className="text-[10px] text-text-muted">Ganti tampilan aplikasi saat ini</p>
+                  <span className={cn(
+                    "text-sm font-medium transition-colors",
+                    configMode === 'light' ? "text-slate-800" : "text-text-main"
+                  )}>{t('theme_mode' as any) || 'Mode Tema Aktif'}</span>
+                  <p className={cn(
+                    "text-[10px] transition-colors",
+                    configMode === 'light' ? "text-slate-400 font-medium" : "text-text-muted"
+                  )}>Ganti tampilan aplikasi saat ini</p>
                 </div>
                 <button 
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 px-4 py-2 bg-surface-panel border border-surface-border rounded-lg text-text-heading hover:bg-primary/5 hover:border-primary/30 transition-all font-bold text-xs uppercase"
+                  className={cn(
+                    "w-full xs:w-auto flex items-center justify-center gap-2 px-4 py-2 border rounded-lg transition-all font-bold text-xs uppercase",
+                    configMode === 'light'
+                      ? "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
+                      : "bg-surface-panel border-surface-border text-text-heading hover:bg-primary/5 hover:border-primary/30"
+                  )}
                 >
                   {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                   {theme === 'dark' ? 'Light' : 'Dark'}
@@ -98,81 +131,122 @@ export const ThemeSettingsPanel: React.FC = () => {
 
               {/* Theme Color */}
               <div className="space-y-2">
-                <label className="label-caps block ml-1">{t('primary_color' as any) || 'Warna Utama'}</label>
+                <label className={cn(
+                  "label-caps block ml-1 transition-colors",
+                  configMode === 'light' && "text-slate-500"
+                )}>{t('primary_color' as any) || 'Warna Utama'}</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="color" 
                     value={currentEditingSettings.themeColor}
                     onChange={(e) => handleSettingChange('themeColor', e.target.value)}
-                    className="w-12 h-12 rounded-xl bg-surface-base border border-surface-border p-1 cursor-pointer"
+                    className={cn(
+                      "w-12 h-12 rounded-xl border p-1 cursor-pointer transition-colors",
+                      configMode === 'light' ? "bg-white border-slate-200 shadow-sm" : "bg-surface-base border-surface-border"
+                    )}
                   />
                   <input 
                     type="text" 
                     value={currentEditingSettings.themeColor}
                     onChange={(e) => handleSettingChange('themeColor', e.target.value)}
-                    className="input-field flex-1 h-12 uppercase font-mono"
+                    className={cn(
+                      "input-field flex-1 h-12 uppercase font-mono transition-colors",
+                      configMode === 'light' && "bg-white border-slate-200 text-slate-900 focus:border-primary/50"
+                    )}
                   />
                 </div>
               </div>
 
               {/* Button Text Color */}
               <div className="space-y-2">
-                <label className="label-caps block ml-1">{t('button_text_color' as any) || 'Warna Teks Tombol'}</label>
+                <label className={cn(
+                  "label-caps block ml-1 transition-colors",
+                  configMode === 'light' && "text-slate-500"
+                )}>{t('button_text_color' as any) || 'Warna Teks Tombol'}</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="color" 
                     value={currentEditingSettings.buttonTextColor}
                     onChange={(e) => handleSettingChange('buttonTextColor', e.target.value)}
-                    className="w-12 h-12 rounded-xl bg-surface-base border border-surface-border p-1 cursor-pointer"
+                    className={cn(
+                      "w-12 h-12 rounded-xl border p-1 cursor-pointer transition-colors",
+                      configMode === 'light' ? "bg-white border-slate-200 shadow-sm" : "bg-surface-base border-surface-border"
+                    )}
                   />
                   <input 
                     type="text" 
                     value={currentEditingSettings.buttonTextColor}
                     onChange={(e) => handleSettingChange('buttonTextColor', e.target.value)}
-                    className="input-field flex-1 h-12 uppercase font-mono"
+                    className={cn(
+                      "input-field flex-1 h-12 uppercase font-mono transition-colors",
+                      configMode === 'light' && "bg-white border-slate-200 text-slate-900 focus:border-primary/50"
+                    )}
                   />
                 </div>
               </div>
 
               {/* Text Color Override */}
               <div className="space-y-2">
-                <label className="label-caps block ml-1">{t('text_color' as any) || 'Warna Teks Global'}</label>
+                <label className={cn(
+                  "label-caps block ml-1 transition-colors",
+                  configMode === 'light' && "text-slate-500"
+                )}>{t('text_color' as any) || 'Warna Teks Global'}</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="color" 
                     value={currentEditingSettings.textColor}
                     onChange={(e) => handleSettingChange('textColor', e.target.value)}
-                    className="w-12 h-12 rounded-xl bg-surface-base border border-surface-border p-1 cursor-pointer"
+                    className={cn(
+                      "w-12 h-12 rounded-xl border p-1 cursor-pointer transition-colors",
+                      configMode === 'light' ? "bg-white border-slate-200 shadow-sm" : "bg-surface-base border-surface-border"
+                    )}
                   />
                   <input 
                     type="text" 
                     value={currentEditingSettings.textColor}
                     onChange={(e) => handleSettingChange('textColor', e.target.value)}
-                    className="input-field flex-1 h-12 uppercase font-mono"
+                    className={cn(
+                      "input-field flex-1 h-12 uppercase font-mono transition-colors",
+                      configMode === 'light' && "bg-white border-slate-200 text-slate-900 focus:border-primary/50"
+                    )}
                   />
                 </div>
               </div>
 
               {/* Inactive Button Color */}
               <div className="space-y-2">
-                <label className="label-caps block ml-1">{t('inactive_button_color' as any) || 'Warna Tombol Sidebar Inaktif'}</label>
+                <label className={cn(
+                  "label-caps block ml-1 transition-colors",
+                  configMode === 'light' && "text-slate-500"
+                )}>{t('inactive_button_color' as any) || 'Warna Tombol Sidebar Inaktif'}</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="color" 
                     value={currentEditingSettings.inactiveButtonColor === 'transparent' ? '#000000' : currentEditingSettings.inactiveButtonColor}
                     onChange={(e) => handleSettingChange('inactiveButtonColor', e.target.value)}
-                    className="w-12 h-12 rounded-xl bg-surface-base border border-surface-border p-1 cursor-pointer"
+                    className={cn(
+                      "w-12 h-12 rounded-xl border p-1 cursor-pointer transition-colors",
+                      configMode === 'light' ? "bg-white border-slate-200 shadow-sm" : "bg-surface-base border-surface-border"
+                    )}
                   />
                   <div className="flex-1 flex gap-2">
                     <input 
                       type="text" 
                       value={currentEditingSettings.inactiveButtonColor}
                       onChange={(e) => handleSettingChange('inactiveButtonColor', e.target.value)}
-                      className="input-field flex-1 h-12 uppercase font-mono"
+                      className={cn(
+                        "input-field flex-1 h-12 uppercase font-mono transition-colors",
+                        configMode === 'light' && "bg-white border-slate-200 text-slate-900 focus:border-primary/50"
+                      )}
                     />
                     <button 
                       onClick={() => handleSettingChange('inactiveButtonColor', 'transparent')}
-                      className="px-3 bg-surface-base border border-surface-border rounded-xl text-[10px] font-bold uppercase hover:text-primary transition-colors"
+                      className={cn(
+                        "px-3 border rounded-xl text-[10px] font-bold uppercase transition-all",
+                        configMode === 'light' 
+                          ? "bg-slate-100 border-slate-200 text-slate-500 hover:text-primary hover:border-primary/30" 
+                          : "bg-surface-base border-surface-border text-text-muted hover:text-primary"
+                      )}
                       title="Set to transparent"
                     >
                       Reset
@@ -183,19 +257,28 @@ export const ThemeSettingsPanel: React.FC = () => {
 
               {/* Selection Color */}
               <div className="space-y-2">
-                <label className="label-caps block ml-1">{t('selection_color' as any) || 'Warna Seleksi Teks'}</label>
+                <label className={cn(
+                  "label-caps block ml-1 transition-colors",
+                  configMode === 'light' && "text-slate-500"
+                )}>{t('selection_color' as any) || 'Warna Seleksi Teks'}</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="color" 
                     value={currentEditingSettings.selectionColor.substring(0, 7)}
                     onChange={(e) => handleSettingChange('selectionColor', e.target.value + '33')}
-                    className="w-12 h-12 rounded-xl bg-surface-base border border-surface-border p-1 cursor-pointer"
+                    className={cn(
+                      "w-12 h-12 rounded-xl border p-1 cursor-pointer transition-colors",
+                      configMode === 'light' ? "bg-white border-slate-200 shadow-sm" : "bg-surface-base border-surface-border"
+                    )}
                   />
                   <input 
                     type="text" 
                     value={currentEditingSettings.selectionColor}
                     onChange={(e) => handleSettingChange('selectionColor', e.target.value)}
-                    className="input-field flex-1 h-12 uppercase font-mono"
+                    className={cn(
+                      "input-field flex-1 h-12 uppercase font-mono transition-colors",
+                      configMode === 'light' && "bg-white border-slate-200 text-slate-900 focus:border-primary/50"
+                    )}
                   />
                 </div>
               </div>
@@ -203,36 +286,54 @@ export const ThemeSettingsPanel: React.FC = () => {
               {/* Chart Tooltip Settings */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="label-caps block ml-1">Chart Tooltip BG</label>
+                  <label className={cn(
+                    "label-caps block ml-1 transition-colors",
+                    configMode === 'light' && "text-slate-500"
+                  )}>Chart Tooltip BG</label>
                   <div className="flex items-center gap-2">
                     <input 
                       type="color" 
                       value={currentEditingSettings.chartTooltipBg}
                       onChange={(e) => handleSettingChange('chartTooltipBg', e.target.value)}
-                      className="w-10 h-10 rounded-lg bg-surface-base border border-surface-border p-1 cursor-pointer"
+                      className={cn(
+                        "w-10 h-10 rounded-lg border p-1 cursor-pointer transition-colors",
+                        configMode === 'light' ? "bg-white border-slate-200" : "bg-surface-base border-surface-border"
+                      )}
                     />
                     <input 
                       type="text" 
                       value={currentEditingSettings.chartTooltipBg}
                       onChange={(e) => handleSettingChange('chartTooltipBg', e.target.value)}
-                      className="input-field flex-1 h-10 uppercase font-mono text-[10px]"
+                      className={cn(
+                        "input-field flex-1 h-10 uppercase font-mono text-[10px] transition-colors",
+                        configMode === 'light' && "bg-white border-slate-200 text-slate-900"
+                      )}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="label-caps block ml-1">Chart Tooltip Text</label>
+                  <label className={cn(
+                    "label-caps block ml-1 transition-colors",
+                    configMode === 'light' && "text-slate-500"
+                  )}>Chart Tooltip Text</label>
                   <div className="flex items-center gap-2">
                     <input 
                       type="color" 
                       value={currentEditingSettings.chartTooltipText}
                       onChange={(e) => handleSettingChange('chartTooltipText', e.target.value)}
-                      className="w-10 h-10 rounded-lg bg-surface-base border border-surface-border p-1 cursor-pointer"
+                      className={cn(
+                        "w-10 h-10 rounded-lg border p-1 cursor-pointer transition-colors",
+                        configMode === 'light' ? "bg-white border-slate-200" : "bg-surface-base border-surface-border"
+                      )}
                     />
                     <input 
                       type="text" 
                       value={currentEditingSettings.chartTooltipText}
                       onChange={(e) => handleSettingChange('chartTooltipText', e.target.value)}
-                      className="input-field flex-1 h-10 uppercase font-mono text-[10px]"
+                      className={cn(
+                        "input-field flex-1 h-10 uppercase font-mono text-[10px] transition-colors",
+                        configMode === 'light' && "bg-white border-slate-200 text-slate-900"
+                      )}
                     />
                   </div>
                 </div>
@@ -240,17 +341,26 @@ export const ThemeSettingsPanel: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass-panel p-6 border-surface-border">
+          <div className={cn(
+            "glass-panel p-4 sm:p-6 border-surface-border transition-all duration-300",
+            configMode === 'light' && "bg-white border-slate-200 shadow-sm"
+          )}>
             <div className="flex items-center gap-2 mb-6">
               <Type className="w-5 h-5 text-primary" />
-              <h3 className="font-bold text-text-heading">{t('typography' as any) || 'Tipografi'}</h3>
+              <h3 className={cn(
+                "font-bold transition-colors",
+                configMode === 'light' ? "text-slate-900" : "text-text-heading"
+              )}>{t('typography' as any) || 'Tipografi'}</h3>
             </div>
 
             <div className="space-y-6">
               {/* Font Size */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="label-caps">{t('font_size' as any) || 'Ukuran Teks (Global)'}</label>
+                  <label className={cn(
+                    "label-caps transition-colors",
+                    configMode === 'light' && "text-slate-500"
+                  )}>{t('font_size' as any) || 'Ukuran Teks (Global)'}</label>
                   <span className="text-sm font-bold text-primary font-mono">{currentEditingSettings.fontSize}px</span>
                 </div>
                 <input 
@@ -260,13 +370,19 @@ export const ThemeSettingsPanel: React.FC = () => {
                   step="1"
                   value={currentEditingSettings.fontSize}
                   onChange={(e) => handleSettingChange('fontSize', parseInt(e.target.value))}
-                  className="w-full h-2 bg-surface-base rounded-lg appearance-none cursor-pointer accent-primary border border-surface-border"
+                  className={cn(
+                    "w-full h-2 rounded-lg appearance-none cursor-pointer accent-primary border transition-colors",
+                    configMode === 'light' ? "bg-slate-100 border-slate-200" : "bg-surface-base border-surface-border"
+                  )}
                 />
               </div>
 
               {/* Font Weight */}
               <div className="space-y-2">
-                <label className="label-caps block ml-1">{t('font_weight' as any) || 'Ketebalan Teks (Global)'}</label>
+                <label className={cn(
+                  "label-caps block ml-1 transition-colors",
+                  configMode === 'light' && "text-slate-500"
+                )}>{t('font_weight' as any) || 'Ketebalan Teks (Global)'}</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button 
                     onClick={() => handleSettingChange('fontWeight', '400')}
@@ -274,7 +390,9 @@ export const ThemeSettingsPanel: React.FC = () => {
                       "flex items-center justify-center gap-2 py-3 rounded-xl border transition-all text-xs font-bold uppercase tracking-widest",
                       currentEditingSettings.fontWeight === '400' 
                         ? "bg-primary/10 border-primary text-primary" 
-                        : "bg-surface-base border-surface-border text-text-muted hover:border-primary/30"
+                        : (configMode === 'light' 
+                           ? "bg-white border-slate-200 text-slate-500 hover:border-primary/30" 
+                           : "bg-surface-base border-surface-border text-text-muted hover:border-primary/30")
                     )}
                   >
                     {currentEditingSettings.fontWeight === '400' && <Check className="w-3 h-3" />}
@@ -286,7 +404,9 @@ export const ThemeSettingsPanel: React.FC = () => {
                       "flex items-center justify-center gap-2 py-3 rounded-xl border transition-all text-xs font-bold uppercase tracking-widest",
                       currentEditingSettings.fontWeight === '700' 
                         ? "bg-primary/10 border-primary text-primary" 
-                        : "bg-surface-base border-surface-border text-text-muted hover:border-primary/30"
+                        : (configMode === 'light' 
+                           ? "bg-white border-slate-200 text-slate-500 hover:border-primary/30" 
+                           : "bg-surface-base border-surface-border text-text-muted hover:border-primary/30")
                     )}
                   >
                     {currentEditingSettings.fontWeight === '700' && <Check className="w-3 h-3" />}
@@ -300,11 +420,11 @@ export const ThemeSettingsPanel: React.FC = () => {
 
         {/* Preview Card */}
         <div className="space-y-6">
-          <div className="sticky top-8">
+          <div className="lg:sticky lg:top-8">
             <h3 className="label-caps mb-4 ml-1">Live Preview ({configMode === 'light' ? 'Mode Terang' : 'Mode Gelap'})</h3>
             <div 
               className={cn(
-                "p-8 rounded-[2rem] border space-y-6 shadow-2xl overflow-hidden relative group transition-all duration-500",
+                "p-5 sm:p-8 rounded-3xl sm:rounded-[2rem] border space-y-5 sm:space-y-6 shadow-2xl overflow-hidden relative group transition-all duration-500",
                 configMode === 'light' 
                   ? "bg-white border-slate-200 text-slate-900" 
                   : "bg-zinc-950 border-zinc-800 text-white"

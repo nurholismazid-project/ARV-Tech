@@ -9,6 +9,10 @@
   --text-muted: #94a3b8;
   --text-heading: #0f172a;
   --input-bg: #ffffff;
+  --sidebar-width: 256px;
+  /* System Defaults */
+  --primary-fallback: #FF0000;
+  --selection-fallback: rgba(255, 0, 0, 0.2);
 }
 
 .dark {
@@ -22,7 +26,7 @@
 }
 
 @theme {
-  --color-primary: var(--primary-custom, #FF0000);
+  --color-primary: var(--primary-custom, var(--primary-fallback));
   --color-surface-base: var(--background);
   --color-surface-panel: var(--panel);
   --color-surface-border: var(--border);
@@ -32,6 +36,9 @@
   --color-input-bg: var(--input-bg);
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Poppins', monospace;
+
+  /* Global Overrides */
+  --ring-color: var(--primary-custom, var(--primary-fallback));
 }
 
 @layer base {
@@ -42,7 +49,14 @@
   }
 
   ::selection {
-    background-color: var(--selection-custom, rgba(255, 0, 0, 0.2));
+    background-color: var(--selection-custom, var(--selection-fallback));
+    color: inherit;
+  }
+
+  /* Force global focus ring color */
+  :focus-visible {
+    outline: 2px solid var(--primary-custom, var(--primary-fallback));
+    outline-offset: 2px;
   }
 }
 

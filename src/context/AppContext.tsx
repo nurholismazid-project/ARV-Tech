@@ -49,6 +49,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const initializeData = useCallback(async (client: SupabaseClient = supabaseClient) => {
     setIsLoading(true);
     try {
+      // Helper for deduplication
+      const deduplicate = <T extends { id: string }>(arr: T[]): T[] => {
+        return arr.filter((item, index, self) => 
+          index === self.findIndex((t) => t.id === item.id)
+        );
+      };
+
       // Test connection
       const { error: healthError } = await client.from('products').select('id').limit(1);
       
@@ -61,49 +68,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .from('products')
         .select('*');
       
-      if (productsError) throw productsError;
+      let finalProducts: Product[] = [];
       if (productsData && productsData.length > 0) {
-        setProducts(productsData);
+        finalProducts = deduplicate(productsData);
       } else {
         const savedProductsStr = localStorage.getItem('arv_tech_products');
-        const savedProducts = savedProductsStr ? JSON.parse(savedProductsStr) : [];
-        if (savedProducts && savedProducts.length > 0) {
-          setProducts(savedProducts);
+        const savedProductsSource = savedProductsStr ? JSON.parse(savedProductsStr) : [];
+        if (savedProductsSource && savedProductsSource.length > 0) {
+          finalProducts = deduplicate(savedProductsSource);
         } else {
           // Sample Initial Data matching user screenshot
-          const sampleProducts: Product[] = [
+          finalProducts = [
             { id: crypto.randomUUID(), name: 'Laptop ASUS ROG G16', description: 'Intel Core i9, RTX 4060, 16GB RAM', buyPrice: 15000000, sellPrice: 18500000, stock: 4, category: 'Laptop', updatedAt: Date.now() },
             { id: crypto.randomUUID(), name: 'SSD Samsung 980 Pro 1TB', description: 'NVMe Gen4 M.2 SSD', buyPrice: 1200000, sellPrice: 1650000, stock: 2, category: 'Accessories', updatedAt: Date.now() },
             { id: crypto.randomUUID(), name: 'PC Gaming ARV Build RTX 4060', description: 'Custom ARV Gaming Rig', buyPrice: 10000000, sellPrice: 13500000, stock: 3, category: 'Computer', updatedAt: Date.now() },
             { id: crypto.randomUUID(), name: 'CCTV Hikvision 5MP', description: 'Outdoor IP Camera', buyPrice: 450000, sellPrice: 650000, stock: 15, category: 'CCTV', updatedAt: Date.now() },
             { id: crypto.randomUUID(), name: 'Service Laptop Standard', description: 'Cleaning & Thermal Paste', buyPrice: 0, sellPrice: 150000, stock: 99, category: 'Service', updatedAt: Date.now() },
           ];
-          setProducts(sampleProducts);
-
-          // Add a sample transaction to match the dashboard in the screenshot
-          const sampleTransactions: Transaction[] = [
-            {
-              id: crypto.randomUUID(),
-              date: Date.now(),
-              totalAmount: 18500000,
-              totalProfit: 3500000,
-              customerName: 'Budi Santoso',
-              items: [
-                {
-                  productId: sampleProducts[0].id,
-                  name: sampleProducts[0].name,
-                  quantity: 1,
-                  price: 18500000,
-                  totalPrice: 18500000
-                }
-              ]
-            }
-          ];
-          setTransactions(sampleTransactions);
-          localStorage.setItem('arv_tech_transactions', JSON.stringify(sampleTransactions));
-          localStorage.setItem('arv_tech_products', JSON.stringify(sampleProducts));
         }
       }
+      setProducts(finalProducts);
 
       // 2. Fetch Transactions
       const { data: transactionsData, error: transactionsError } = await client
@@ -111,27 +95,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*')
         .order('date', { ascending: false });
       
-      if (transactionsError) throw transactionsError;
+      let finalTransactions: Transaction[] = [];
       if (transactionsData && transactionsData.length > 0) {
-        setTransactions(transactionsData);
+        finalTransactions = deduplicate(transactionsData);
       } else {
-        const savedTransactions = localStorage.getItem('arv_tech_transactions');
-        if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+        const savedTransactionsStr = localStorage.getItem('arv_tech_transactions');
+        const savedTransactionsSource = savedTransactionsStr ? JSON.parse(savedTransactionsStr) : [];
+        if (savedTransactionsSource && savedTransactionsSource.length > 0) {
+          finalTransactions = deduplicate(savedTransactionsSource);
+        } else {
+          // Sample Initial Data matching user screenshot
+          finalTransactions = [
+            {
+              id: crypto.randomUUID(),
+              date: Date.now(),
+              totalAmount: 18500000,
+              totalProfit: 3500000,
+              customerName: 'Budi Santoso',
+              status: 'Lunas',
+              items: [
+                {
+                  productId: finalProducts[0].id,
+                  name: finalProducts[0].name,
+                  quantity: 1,
+                  price: 18500000,
+                  totalPrice: 18500000
+                }
+              ]
+            }
+          ];
+        }
       }
+      setTransactions(finalTransactions);
 
       // 3. Fetch Customers
       const { data: customersData, error: customersError } = await client
         .from('customers')
         .select('*');
       
-      if (customersError) {
-        const savedCustomers = localStorage.getItem('arv_tech_customers');
-        if (savedCustomers) setCustomers(JSON.parse(savedCustomers));
-      } else if (customersData && customersData.length > 0) {
-        setCustomers(customersData);
+      if (customersData && customersData.length > 0) {
+        setCustomers(deduplicate(customersData));
       } else {
         const savedCustomers = localStorage.getItem('arv_tech_customers');
-        if (savedCustomers) setCustomers(JSON.parse(savedCustomers));
+        if (savedCustomers) setCustomers(deduplicate(JSON.parse(savedCustomers)));
       }
 
       // 4. Fetch Expenses
@@ -140,14 +146,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*')
         .order('date', { ascending: false });
       
-      if (expensesError) {
-        const savedExpenses = localStorage.getItem('arv_tech_expenses');
-        if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
-      } else if (expensesData && expensesData.length > 0) {
-        setExpenses(expensesData);
+      if (expensesData && expensesData.length > 0) {
+        setExpenses(deduplicate(expensesData));
       } else {
         const savedExpenses = localStorage.getItem('arv_tech_expenses');
-        if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
+        if (savedExpenses) setExpenses(deduplicate(JSON.parse(savedExpenses)));
       }
 
     } catch (error) {
@@ -205,10 +208,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Sync back to local as backup
   useEffect(() => {
     if (!isLoading) {
-      localStorage.setItem('arv_tech_products', JSON.stringify(products));
-      localStorage.setItem('arv_tech_transactions', JSON.stringify(transactions));
-      localStorage.setItem('arv_tech_customers', JSON.stringify(customers));
-      localStorage.setItem('arv_tech_expenses', JSON.stringify(expenses));
+      // Deduplicate before saving to localStorage
+      const deduplicate = <T extends { id: string }>(arr: T[]): T[] => {
+        return arr.filter((item, index, self) => 
+          index === self.findIndex((t) => t.id === item.id)
+        );
+      };
+
+      const cleanProducts = deduplicate(products);
+      const cleanTransactions = deduplicate(transactions);
+      const cleanCustomers = deduplicate(customers);
+      const cleanExpenses = deduplicate(expenses);
+
+      localStorage.setItem('arv_tech_products', JSON.stringify(cleanProducts));
+      localStorage.setItem('arv_tech_transactions', JSON.stringify(cleanTransactions));
+      localStorage.setItem('arv_tech_customers', JSON.stringify(cleanCustomers));
+      localStorage.setItem('arv_tech_expenses', JSON.stringify(cleanExpenses));
     }
   }, [products, transactions, customers, expenses, isLoading]);
 

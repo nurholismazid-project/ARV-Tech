@@ -31,6 +31,15 @@ export interface Transaction {
   totalAmount: number;
   totalProfit: number;
   customerName?: string;
+  discountType?: 'percent' | 'nominal';
+  discountValue?: number;
+  discountAmount?: number;
+  downPayment?: number;
+  remainingBalance?: number;
+  paymentMethod?: 'Tunai' | 'Transfer Bank' | 'E-Wallet';
+  paymentProofUrl?: string;
+  status: 'Lunas' | 'Belum Lunas' | 'Draf';
+  dueDate?: number;
 }
 
 export type CustomerReference = 'Offline' | 'Reseller' | 'WhatsApp' | 'Facebook' | 'Instagram' | 'TikTok' | 'Website';
