@@ -13,7 +13,6 @@ import {
   Trash2, 
   Calendar,
   Tag,
-  DollarSign,
   X,
   CreditCard,
   FileText,
@@ -22,6 +21,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { format } from 'date-fns';
+import { NumericInput } from './ui/NumericInput';
 
 const CATEGORY_OPTIONS: ExpenseCategory[] = [
   'Operational',
@@ -88,10 +88,14 @@ export const Expenses = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="heading-display">{t('expenses')}</h2>
-          <div className="flex items-center gap-3 mt-1">
-             <div className="flex items-center gap-1.5 text-xs font-bold text-rose-500 uppercase tracking-widest">
-               <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-               {formatCurrency(totalExpense)} {t('total_expenses')}
+          <div className="flex items-center gap-3 mt-2">
+             <div className="flex items-baseline gap-2">
+                <span className="text-2xl md:text-3xl font-black text-[#FF0000] font-mono tracking-tighter">
+                  {formatCurrency(totalExpense)}
+                </span>
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest pb-1 opacity-60">
+                  {t('total_expenses')}
+                </span>
              </div>
           </div>
         </div>
@@ -108,15 +112,15 @@ export const Expenses = () => {
         </button>
       </div>
 
-      <div className="glass-panel p-4 mb-6 border-white/5">
+      <div className="glass-panel p-4 mb-6 border-surface-border">
         <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
             <Search className="w-4 h-4" />
           </div>
           <input
             type="text"
             placeholder={t('search_expenses')}
-            className="input-field w-full !pl-14 h-12 bg-slate-900/50"
+            className="input-field w-full !pl-14 h-12 bg-surface-base"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -133,17 +137,17 @@ export const Expenses = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-panel group relative flex flex-col p-6 hover:border-primary/30 transition-all border-white/5"
+              className="glass-panel group relative flex flex-col p-6 hover:border-primary/30 transition-all border-surface-border"
             >
               <div className="flex justify-between items-start mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-primary/20 transition-all">
-                  <CreditCard className="w-6 h-6 text-slate-500 group-hover:text-primary transition-colors" />
+                <div className="w-12 h-12 rounded-2xl bg-surface-base border border-surface-border flex items-center justify-center shadow-inner group-hover:border-primary/20 transition-all">
+                  <CreditCard className="w-6 h-6 text-text-muted group-hover:text-primary transition-colors" />
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleEdit(expense)} className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                  <button onClick={() => handleEdit(expense)} className="p-2 text-text-muted hover:text-text-heading hover:bg-surface-base rounded-lg transition-all">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(expense.id)} className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-all">
+                  <button onClick={() => handleDelete(expense.id)} className="p-2 text-text-muted hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-all">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -151,11 +155,11 @@ export const Expenses = () => {
 
               <div className="flex-1 space-y-4">
                 <div>
-                   <h4 className="font-bold text-white text-lg group-hover:text-primary transition-colors leading-tight truncate">
+                   <h4 className="font-bold text-text-heading text-lg group-hover:text-primary transition-colors leading-tight truncate">
                       {expense.description}
                    </h4>
                    <div className="flex items-center gap-2 mt-1">
-                      <span className="px-2 py-0.5 rounded bg-slate-900 border border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      <span className="px-2 py-0.5 rounded bg-surface-base border border-surface-border text-[10px] font-bold text-text-muted uppercase tracking-widest">
                          {t(`cat_${expense.category}` as any)}
                       </span>
                    </div>
@@ -177,7 +181,7 @@ export const Expenses = () => {
       </div>
 
       {filteredExpenses.length === 0 && (
-        <div className="py-20 text-center text-slate-600 bg-slate-950/30 rounded-3xl border border-dashed border-white/5">
+        <div className="py-20 text-center text-text-muted bg-surface-panel/30 rounded-3xl border border-dashed border-surface-border">
           <FileText className="w-12 h-12 mx-auto mb-4 opacity-5 text-primary" />
           <p className="text-sm font-medium">{t('no_expense_found')}</p>
         </div>
@@ -198,11 +202,11 @@ export const Expenses = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative glass-panel w-full max-w-lg p-8 border-white/10"
+              className="relative glass-panel w-full max-w-lg p-8 border-surface-border"
             >
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute right-6 top-6 text-slate-500 hover:text-white transition-colors"
+                className="absolute right-6 top-6 text-text-muted hover:text-text-heading transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -212,8 +216,8 @@ export const Expenses = () => {
                   <CreditCard className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">{editingId ? t('edit_expense') : t('add_expense')}</h3>
-                  <p className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-widest">{t('expense_details' as any)}</p>
+                  <h3 className="text-xl font-bold text-text-heading">{editingId ? t('edit_expense') : t('add_expense')}</h3>
+                  <p className="text-xs text-text-muted font-medium mt-1 uppercase tracking-widest">{t('expense_details' as any)}</p>
                 </div>
               </div>
 
@@ -223,16 +227,14 @@ export const Expenses = () => {
                     <label className="label-caps ml-2">{t('expense_amount')}</label>
                     <div className="relative group">
                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
-                          <span className="text-sm font-bold mr-1 text-slate-500">Rp</span>
-                          <DollarSign className="w-4 h-4 text-slate-600" />
+                          <span className="text-sm font-bold text-slate-500">Rp</span>
                        </div>
-                       <input
-                         type="number"
+                       <NumericInput
                          required
-                         className="input-field w-full !pl-20 h-14 font-mono text-lg font-bold tracking-tight bg-slate-900/50"
+                         className="input-field w-full !pl-14 h-14 font-mono text-lg font-bold tracking-tight bg-surface-base"
                          placeholder="0"
-                         value={formData.amount || ''}
-                         onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+                         value={formData.amount}
+                         onChange={(val) => setFormData({ ...formData, amount: val })}
                        />
                     </div>
                   </div>

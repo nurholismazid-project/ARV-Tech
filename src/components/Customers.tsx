@@ -102,15 +102,15 @@ export const Customers = () => {
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5 space-y-4 md:space-y-0 md:flex md:items-center md:gap-4">
+      <div className="bg-surface-panel/40 p-4 rounded-xl border border-surface-border space-y-4 md:space-y-0 md:flex md:items-center md:gap-4 transition-colors">
         <div className="relative flex-1 group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
             <Search className="w-4 h-4" />
           </div>
           <input
             type="text"
             placeholder={t('search_customers')}
-            className="input-field w-full !pl-14 h-12 bg-slate-900/50"
+            className="input-field w-full !pl-14 h-12 bg-surface-base transition-colors"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -136,20 +136,20 @@ export const Customers = () => {
             <motion.div 
               layout
               key={customer.id} 
-              className="glass-panel p-6 border-white/5 group hover:border-primary/20 transition-all flex flex-col h-full"
+              className="glass-panel p-6 border-surface-border group hover:border-primary/20 transition-all flex flex-col h-full"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-950 border border-white/5 flex items-center justify-center text-primary group-hover:bg-primary/5 transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-surface-base border border-surface-border flex items-center justify-center text-primary group-hover:bg-primary/5 transition-colors">
                     <User className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white tracking-tight text-lg">{customer.name}</h4>
-                    <span className="label-caps !text-[9px] !text-slate-600">ID: {customer.id.slice(0, 8)}</span>
+                    <h4 className="font-bold text-text-heading tracking-tight text-lg">{customer.name}</h4>
+                    <span className="label-caps !text-[9px] !text-text-muted">ID: {customer.id.slice(0, 8)}</span>
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => handleEdit(customer)} className="text-slate-500 hover:text-white hover:bg-slate-800 p-2 rounded-lg transition-all">
+                  <button onClick={() => handleEdit(customer)} className="text-text-muted hover:text-text-heading hover:bg-surface-base p-2 rounded-lg transition-all">
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button 
@@ -158,7 +158,7 @@ export const Customers = () => {
                         deleteCustomer(customer.id);
                       }
                     }} 
-                    className="text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 p-2 rounded-lg transition-all"
+                    className="text-text-muted hover:text-rose-400 hover:bg-rose-400/10 p-2 rounded-lg transition-all"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -169,39 +169,39 @@ export const Customers = () => {
                 {(customer.phone || customer.reference || customer.address) ? (
                   <div className="space-y-3">
                     {customer.phone && (
-                      <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
-                        <Phone className="w-3.5 h-3.5 text-slate-600" />
+                      <div className="flex items-center gap-3 text-xs text-text-muted font-medium">
+                        <Phone className="w-3.5 h-3.5 text-text-muted/60" />
                         {customer.phone}
                       </div>
                     )}
                     {customer.reference && (
-                      <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
-                        <Tag className="w-3.5 h-3.5 text-slate-600" />
+                      <div className="flex items-center gap-3 text-xs text-text-muted font-medium">
+                        <Tag className="w-3.5 h-3.5 text-text-muted/60" />
                         {customer.reference}
                       </div>
                     )}
                     {customer.address && (
-                      <div className="flex items-start gap-3 text-xs text-slate-400 font-medium leading-relaxed">
-                        <MapPin className="w-3.5 h-3.5 text-slate-600 mt-0.5 shrink-0" />
+                      <div className="flex items-start gap-3 text-xs text-text-muted font-medium leading-relaxed">
+                        <MapPin className="w-3.5 h-3.5 text-text-muted/60 mt-0.5 shrink-0" />
                         {customer.address}
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="py-4 text-center border-y border-white/[0.02] border-dashed">
-                    <p className="text-[10px] text-slate-600 font-medium italic opacity-60">No contact info provided</p>
+                  <div className="py-4 text-center border-y border-surface-border/50 border-dashed transition-colors">
+                    <p className="text-[10px] text-text-muted font-medium italic opacity-60">No contact info provided</p>
                   </div>
                 )}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/[0.05] grid grid-cols-2 gap-4">
+              <div className="mt-8 pt-6 border-t border-surface-border/50 grid grid-cols-2 gap-4 transition-colors">
                 <div>
                   <p className="label-caps !text-[9px] mb-1">{t('total_spent')}</p>
                   <p className="text-sm font-bold text-primary font-mono tracking-tight">{formatCurrency(stats.totalSpent)}</p>
                 </div>
                 <div>
                   <p className="label-caps !text-[9px] mb-1">{t('last_transaction')}</p>
-                  <p className="text-sm font-bold text-white font-mono tracking-tight">
+                  <p className="text-sm font-bold text-text-heading font-mono tracking-tight">
                     {stats.lastDate ? format(stats.lastDate, 'dd MMM yy') : '-'}
                   </p>
                 </div>
@@ -232,16 +232,16 @@ export const Customers = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-slate-950 border border-white/5 rounded-3xl w-full max-w-lg p-8 shadow-2xl"
+              className="relative bg-surface-panel border border-surface-border rounded-3xl w-full max-w-lg p-8 shadow-2xl transition-colors"
             >
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-xl">
                     <User className="w-5 h-5 text-primary" />
                   </div>
-                  <h3 className="text-xl font-bold text-white tracking-tight">{editingId ? t('edit_customer') : t('add_customer')}</h3>
+                  <h3 className="text-xl font-bold text-text-heading tracking-tight">{editingId ? t('edit_customer') : t('add_customer')}</h3>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
+                <button onClick={() => setIsModalOpen(false)} className="text-text-muted hover:text-text-heading transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -274,12 +274,12 @@ export const Customers = () => {
                     <label className="label-caps ml-2">{t('customer_category')}</label>
                     <div className="relative group">
                       <select
-                        className="input-field w-full h-12 appearance-none cursor-pointer !pl-4 pr-10"
+                        className="input-field w-full h-12 appearance-none cursor-pointer !pl-4 pr-10 bg-surface-base"
                         value={formData.reference}
                         onChange={(e) => setFormData({ ...formData, reference: e.target.value as CustomerReference })}
                       >
                         {REFERENCE_OPTIONS.map(opt => (
-                          <option key={opt} value={opt} className="bg-slate-900">{opt}</option>
+                          <option key={opt} value={opt} className="bg-surface-panel">{opt}</option>
                         ))}
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">

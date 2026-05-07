@@ -1,41 +1,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+:root {
+  --background: #f8fafc;
+  --panel: #ffffff;
+  --border: #e2e8f0;
+  --text-main: #475569;
+  --text-muted: #94a3b8;
+  --text-heading: #0f172a;
+  --input-bg: #ffffff;
+}
+
+.dark {
+  --background: #0f1115;
+  --panel: #1a1d24;
+  --border: #1e293b;
+  --text-main: #94a3b8;
+  --text-muted: #64748b;
+  --text-heading: #ffffff;
+  --input-bg: #0b0d11;
+}
+
 @theme {
-  --color-primary: #FF0000; /* Red as requested */
-  --color-surface-base: #0f1115; /* Background */
-  --color-surface-panel: #1a1d24; /* Card/Panel */
-  --color-surface-border: #1e293b; /* Slate-800 border */
+  --color-primary: var(--primary-custom, #FF0000);
+  --color-surface-base: var(--background);
+  --color-surface-panel: var(--panel);
+  --color-surface-border: var(--border);
+  --color-text-main: var(--text-main-custom, var(--text-main));
+  --color-text-muted: var(--text-muted);
+  --color-text-heading: var(--text-heading-custom, var(--text-heading));
+  --color-input-bg: var(--input-bg);
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'Poppins', monospace;
 }
 
 @layer base {
   body {
-    @apply bg-surface-base text-slate-300 antialiased font-sans;
+    @apply bg-surface-base text-text-main antialiased font-sans transition-colors duration-300;
+    font-size: var(--font-size-base, 14px);
+    font-weight: var(--font-weight-base, 400);
+  }
+
+  ::selection {
+    background-color: var(--selection-custom, rgba(255, 0, 0, 0.2));
   }
 }
 
 .glass-panel {
-  @apply bg-surface-panel border border-surface-border shadow-sm rounded-xl;
+  @apply bg-surface-panel border border-surface-border shadow-sm rounded-xl transition-colors duration-300;
 }
 
 .btn-primary {
-  @apply bg-primary hover:bg-rose-600 text-white font-bold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-lg shadow-rose-500/10 active:scale-95 text-sm;
+  @apply bg-primary hover:opacity-90 font-bold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-lg shadow-primary/10 active:scale-95 text-sm;
+  color: var(--btn-text-custom, #FFFFFF);
 }
 
 .btn-secondary {
-  @apply bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 active:scale-95 text-sm;
+  @apply bg-slate-800 dark:bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 active:scale-95 text-sm;
 }
 
 .input-field {
-  @apply bg-[#0b0d11] border border-surface-border text-slate-100 rounded-xl py-2 px-4 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-slate-600 text-sm;
+  @apply bg-input-bg border border-surface-border text-text-heading rounded-xl py-2 px-4 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-text-muted/50 text-sm;
 }
 
 .label-caps {
-  @apply text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em];
+  @apply text-[10px] font-bold text-text-muted uppercase tracking-[0.2em];
 }
 
 .heading-display {
-  @apply text-lg font-bold text-white tracking-tight;
+  @apply text-lg font-bold text-text-heading tracking-tight;
+  font-weight: var(--font-weight-base, 700);
 }

@@ -39,14 +39,14 @@ export const ReceiptModal = ({ transaction, onClose }: ReceiptModalProps) => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl print:shadow-none print:rounded-none"
+          className="relative w-full max-w-sm bg-surface-panel border border-surface-border rounded-3xl overflow-hidden shadow-2xl transition-colors print:shadow-none print:rounded-none print:bg-white print:border-none"
         >
           <div className="p-6 overflow-y-auto max-h-[90vh] print:max-h-none print:p-0">
             {/* Action Buttons (Hidden on Print) */}
             <div className="flex justify-between items-center mb-6 print:hidden">
                <button 
                   onClick={onClose}
-                  className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
+                  className="p-2 hover:bg-surface-base rounded-full transition-colors text-text-muted hover:text-text-heading"
                >
                   <X className="w-5 h-5" />
                </button>
@@ -60,37 +60,37 @@ export const ReceiptModal = ({ transaction, onClose }: ReceiptModalProps) => {
             </div>
 
             {/* Receipt Content */}
-            <div id="receipt-content" className="text-zinc-900 font-mono text-xs print:text-sm">
-               <div className="text-center space-y-1 mb-6 border-b border-dashed border-zinc-300 pb-6">
-                  <h2 className="text-base font-bold tracking-tighter uppercase">ARV-Tech Finance</h2>
-                  <p className="text-[10px] print:text-xs text-zinc-500">Jl. Teknologi No. 42, Digital City</p>
-                  <p className="text-[10px] print:text-xs text-zinc-500">Tel: +62 812 3456 7890</p>
+            <div id="receipt-content" className="text-text-main font-mono text-xs print:text-sm print:text-zinc-900">
+               <div className="text-center space-y-1 mb-6 border-b border-dashed border-surface-border pb-6 transition-colors print:border-zinc-300">
+                  <h2 className="text-base font-bold tracking-tighter uppercase text-text-heading print:text-zinc-900">ARV-Tech Finance</h2>
+                  <p className="text-[10px] print:text-xs text-text-muted transition-colors print:text-zinc-500">Jl. Teknologi No. 42, Digital City</p>
+                  <p className="text-[10px] print:text-xs text-text-muted transition-colors print:text-zinc-500">Tel: +62 812 3456 7890</p>
                </div>
 
                <div className="space-y-1 mb-6">
                   <div className="flex justify-between">
-                     <span className="text-zinc-500">{t('order_id')}:</span>
-                     <span className="font-bold">#{transaction.id.slice(0, 8).toUpperCase()}</span>
+                     <span className="text-text-muted transition-colors print:text-zinc-500">{t('order_id')}:</span>
+                     <span className="font-bold text-text-heading transition-colors print:text-zinc-900">#{transaction.id.slice(0, 8).toUpperCase()}</span>
                   </div>
                   <div className="flex justify-between">
-                     <span className="text-zinc-500">{t('date_time')}:</span>
-                     <span>{format(transaction.date, 'dd/MM/yyyy HH:mm')}</span>
+                     <span className="text-text-muted transition-colors print:text-zinc-500">{t('date_time')}:</span>
+                     <span className="text-text-main transition-colors print:text-zinc-900">{format(transaction.date, 'dd/MM/yyyy HH:mm')}</span>
                   </div>
                   <div className="flex justify-between">
-                     <span className="text-zinc-500">{t('customer')}:</span>
-                     <span className="truncate max-w-[120px]">{transaction.customerName || t('walk_in_customer')}</span>
+                     <span className="text-text-muted transition-colors print:text-zinc-500">{t('customer')}:</span>
+                     <span className="truncate max-w-[120px] text-text-main transition-colors print:text-zinc-900">{transaction.customerName || t('walk_in_customer')}</span>
                   </div>
                </div>
 
-               <div className="border-y border-dashed border-zinc-300 py-4 mb-4">
-                  <div className="grid grid-cols-6 gap-2 mb-2 font-bold text-zinc-500 uppercase text-[10px]">
+               <div className="border-y border-dashed border-surface-border py-4 mb-4 transition-colors print:border-zinc-300">
+                  <div className="grid grid-cols-6 gap-2 mb-2 font-bold text-text-muted uppercase text-[10px] transition-colors print:text-zinc-500">
                      <div className="col-span-3">{t('products_label')}</div>
                      <div className="text-center">Qty</div>
                      <div className="col-span-2 text-right">{t('amount')}</div>
                   </div>
                   <div className="space-y-2">
                      {transaction.items.map((item, i) => (
-                        <div key={i} className="grid grid-cols-6 gap-2">
+                        <div key={i} className="grid grid-cols-6 gap-2 text-text-main transition-colors print:text-zinc-900">
                            <div className="col-span-3 leading-tight">{item.name}</div>
                            <div className="text-center">{item.quantity}</div>
                            <div className="col-span-2 text-right font-bold">{formatCurrency(item.totalPrice)}</div>
@@ -101,25 +101,25 @@ export const ReceiptModal = ({ transaction, onClose }: ReceiptModalProps) => {
 
                <div className="space-y-2 mb-8">
                   <div className="flex justify-between">
-                     <span className="text-zinc-500">{t('subtotal')}</span>
-                     <span>{formatCurrency(transaction.totalAmount)}</span>
+                     <span className="text-text-muted transition-colors print:text-zinc-500">{t('subtotal')}</span>
+                     <span className="text-text-main transition-colors print:text-zinc-900">{formatCurrency(transaction.totalAmount)}</span>
                   </div>
                   <div className="flex justify-between">
-                     <span className="text-zinc-500">{t('tax')} (0%)</span>
-                     <span>Rp 0</span>
+                     <span className="text-text-muted transition-colors print:text-zinc-500">{t('tax')} (0%)</span>
+                     <span className="text-text-main transition-colors print:text-zinc-900">Rp 0</span>
                   </div>
-                  <div className="flex justify-between text-sm font-bold pt-2 border-t border-zinc-200">
+                  <div className="flex justify-between text-sm font-bold pt-2 border-t border-surface-border transition-colors print:text-zinc-900 print:border-zinc-200">
                      <span>{t('total')}</span>
                      <span>{formatCurrency(transaction.totalAmount)}</span>
                   </div>
                </div>
 
-               <div className="text-center space-y-2 pt-4 border-t border-dashed border-zinc-300">
+               <div className="text-center space-y-2 pt-4 border-t border-dashed border-surface-border transition-colors print:border-zinc-300">
                   <div className="flex justify-center mb-2">
                      <CheckCircle2 className="w-6 h-6 text-primary opacity-30" />
                   </div>
-                  <p className="uppercase font-bold tracking-widest text-[10px]">{t('transaction_success')}</p>
-                  <p className="text-[9px] text-zinc-400">Terima kasih telah berbelanja di ARV-Tech!</p>
+                  <p className="uppercase font-bold tracking-widest text-[10px] text-text-heading print:text-zinc-900">{t('transaction_success')}</p>
+                  <p className="text-[9px] text-text-muted transition-colors print:text-zinc-400">Terima kasih telah berbelanja di ARV-Tech!</p>
                </div>
             </div>
           </div>

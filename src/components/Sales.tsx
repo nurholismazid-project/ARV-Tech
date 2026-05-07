@@ -111,15 +111,15 @@ export const Sales = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
       {/* Product Selection */}
       <div className="lg:col-span-2 space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-xl border border-white/5">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-surface-panel/40 p-4 rounded-xl border border-surface-border transition-colors">
           <div className="relative flex-1 w-full group">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
               <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
               placeholder={t('search_products')}
-              className="input-field w-full !pl-14 h-14 bg-slate-900/50 text-sm font-medium tracking-tight"
+              className="input-field w-full !pl-14 h-14 bg-surface-base text-sm font-medium tracking-tight transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -131,12 +131,12 @@ export const Sales = () => {
             <button
               key={product.id}
               onClick={() => addToCart(product)}
-              className="glass-panel p-5 rounded-2xl flex justify-between items-center hover:border-primary/40 hover:bg-primary/5 transition-all text-left group"
+              className="glass-panel p-5 rounded-2xl flex justify-between items-center hover:border-primary/40 hover:bg-primary/5 transition-all text-left group border-surface-border"
             >
               <div className="space-y-1">
-                <p className="label-caps !text-slate-500">{t(`cat_${product.category}` as any)}</p>
-                <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors leading-tight">{product.name}</h4>
-                <p className="text-lg font-bold font-mono text-white pt-1">{formatCurrency(product.sellPrice)}</p>
+                <p className="label-caps !text-text-muted">{t(`cat_${product.category}` as any)}</p>
+                <h4 className="text-sm font-bold text-text-heading group-hover:text-primary transition-colors leading-tight">{product.name}</h4>
+                <p className="text-lg font-bold font-mono text-text-heading pt-1">{formatCurrency(product.sellPrice)}</p>
               </div>
               <div className="text-right">
                 <span className="label-caps block mb-1.5">{t('stock')}</span>
@@ -164,74 +164,74 @@ export const Sales = () => {
 
       {/* Cart / Summary */}
       <div className="space-y-6">
-        <div className="glass-panel p-6 rounded-3xl sticky top-8 border-primary/10">
+        <div className="glass-panel p-6 rounded-3xl sticky top-8 border-primary/20 shadow-xl bg-surface-panel transition-colors">
           <div className="flex items-center gap-3 mb-8">
-            <div className="p-2.5 bg-primary/10 rounded-xl">
+            <div className="p-2.5 bg-primary/10 rounded-xl transition-colors">
               <ShoppingCart className="w-5 h-5 text-primary" />
             </div>
-            <h3 className="text-lg font-bold text-white tracking-tight">{t('cart')}</h3>
+            <h3 className="text-lg font-bold text-text-heading tracking-tight transition-colors">{t('cart')}</h3>
           </div>
 
           <div className="space-y-3 mb-8">
             <label className="label-caps ml-1">{t('customer_name')}</label>
             <div className="relative">
-               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                <input
                 type="text"
                 placeholder={t('general_customer')}
-                className="input-field w-full !pl-14 text-sm font-medium"
+                className="input-field w-full !pl-14 text-sm font-medium bg-surface-base transition-colors"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 mb-8 border-y border-zinc-800/50 py-4">
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 mb-8 border-y border-surface-border transition-colors py-4">
             {cart.map(item => (
               <div key={item.productId} className="flex justify-between items-center group">
                 <div className="flex-1">
-                  <h4 className="text-sm font-medium text-white truncate w-40">{item.name}</h4>
-                  <p className="text-xs text-zinc-500">{formatCurrency(item.price)}</p>
+                  <h4 className="text-sm font-medium text-text-heading truncate w-40 transition-colors">{item.name}</h4>
+                  <p className="text-xs text-text-muted transition-colors">{formatCurrency(item.price)}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center border border-zinc-800 rounded-lg bg-zinc-950 overflow-hidden">
+                  <div className="flex items-center border border-surface-border rounded-lg bg-surface-base overflow-hidden transition-colors">
                     <button 
                       onClick={() => updateQuantity(item.productId, -1)}
-                      className="p-1 hover:bg-zinc-900 transition-colors text-zinc-500"
+                      className="p-1 hover:bg-primary/10 transition-colors text-text-muted hover:text-primary"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-8 text-center text-sm font-mono text-white">{item.quantity}</span>
+                    <span className="w-8 text-center text-sm font-mono text-text-heading transition-colors">{item.quantity}</span>
                     <button 
                       onClick={() => updateQuantity(item.productId, 1)}
-                      className="p-1 hover:bg-zinc-900 transition-colors text-zinc-100"
+                      className="p-1 hover:bg-primary/10 transition-colors text-text-muted hover:text-primary"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  <button onClick={() => removeFromCart(item.productId)} className="text-zinc-600 hover:text-rose-500 transition-colors">
+                  <button onClick={() => removeFromCart(item.productId)} className="text-text-muted hover:text-rose-500 transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             ))}
             {cart.length === 0 && (
-              <div className="text-center py-10 text-zinc-600">
+              <div className="text-center py-10 text-text-muted">
                 <p className="text-sm">{t('no_item_added')}</p>
               </div>
             )}
           </div>
 
           <div className="space-y-3 mb-8">
-            <div className="flex justify-between text-sm text-zinc-400">
+            <div className="flex justify-between text-sm text-text-muted transition-colors">
                <span>{t('subtotal')}</span>
                <span className="font-mono">{formatCurrency(totalAmount)}</span>
             </div>
-            <div className="flex justify-between text-sm text-zinc-400">
+            <div className="flex justify-between text-sm text-text-muted transition-colors">
                <span>{t('tax')} (0%)</span>
                <span className="font-mono">Rp 0</span>
             </div>
-            <div className="flex justify-between text-2xl font-bold text-white pt-3 border-t border-zinc-800">
+            <div className="flex justify-between text-2xl font-bold text-text-heading pt-3 border-t border-surface-border transition-colors">
               <span>{t('total')}</span>
               <span className="text-primary font-mono">{formatCurrency(totalAmount)}</span>
             </div>

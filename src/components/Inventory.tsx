@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { NumericInput } from './ui/NumericInput';
 
 const categories: Category[] = ['Laptop', 'Computer', 'Accessories', 'CCTV', 'Service'];
 
@@ -33,7 +34,7 @@ const CategoryTab: React.FC<CategoryTabProps> = ({ label, active, onClick }) => 
       "flex-1 md:flex-none px-6 py-3 rounded-xl font-bold transition-all text-xs uppercase tracking-widest border",
       active 
         ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(244,63,94,0.1)]" 
-        : "bg-transparent border-white/5 text-slate-500 hover:border-white/10 hover:text-slate-300"
+        : "bg-surface-panel border-surface-border text-text-muted hover:border-primary/30 hover:text-text-heading"
     )}
   >
     {label}
@@ -133,13 +134,13 @@ export const Inventory = () => {
         {/* Search Bar */}
         <div className="glass-panel p-4 border-white/5 group">
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-text-muted group-focus-within:text-primary transition-colors">
               <Search className="w-5 h-5" />
             </div>
             <input
               type="text"
               placeholder={t('search_products')}
-              className="input-field w-full !pl-14 h-14 bg-slate-900/50 text-base font-medium"
+              className="input-field w-full !pl-14 h-14 bg-surface-base text-base font-medium"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -149,11 +150,11 @@ export const Inventory = () => {
         {/* Content Area */}
         <div className="space-y-6">
           {/* Desktop Table View */}
-      <div className="hidden md:block glass-panel overflow-hidden border-white/5">
+      <div className="hidden md:block glass-panel overflow-hidden border-surface-border">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="bg-slate-900/50 border-b border-white/5">
+              <tr className="bg-surface-base/50 border-b border-surface-border transition-colors">
                 <th className="px-6 py-5 label-caps">{t('product')}</th>
                 <th className="px-6 py-5 label-caps">{t('category')}</th>
                 <th className="px-6 py-5 label-caps">{t('cost_price')}</th>
@@ -162,20 +163,20 @@ export const Inventory = () => {
                 <th className="px-6 py-5 label-caps text-right">{t('actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/50">
+            <tbody className="divide-y divide-surface-border/50">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-slate-800/5 transition-colors border-b border-white/[0.02] last:border-0 group">
+                <tr key={product.id} className="hover:bg-surface-base/50 transition-colors border-b border-surface-border last:border-0 group">
                   <td className="px-6 py-6">
-                    <div className="font-bold text-white group-hover:text-primary transition-colors text-sm tracking-tight">{product.name}</div>
-                    <div className="text-[11px] text-slate-500 truncate w-64 mt-1 font-medium italic opacity-60 group-hover:opacity-100 transition-opacity">{product.description || t('no_description')}</div>
+                    <div className="font-bold text-text-heading group-hover:text-primary transition-colors text-sm tracking-tight">{product.name}</div>
+                    <div className="text-[11px] text-text-muted truncate w-64 mt-1 font-medium italic opacity-60 group-hover:opacity-100 transition-opacity">{product.description || t('no_description')}</div>
                   </td>
                   <td className="px-6 py-6">
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-2.5 py-1 rounded-lg bg-surface-base border border-surface-border text-text-muted text-[10px] font-bold uppercase tracking-wider">
                       {t(`cat_${product.category}` as any)}
                     </span>
                   </td>
-                  <td className="px-6 py-5 text-sm font-mono text-slate-500">{formatCurrency(product.buyPrice)}</td>
-                  <td className="px-6 py-5 text-sm font-mono text-white font-medium">
+                  <td className="px-6 py-5 text-sm font-mono text-text-muted">{formatCurrency(product.buyPrice)}</td>
+                  <td className="px-6 py-5 text-sm font-mono text-text-heading font-medium">
                     <div>{formatCurrency(product.sellPrice)}</div>
                     {product.sellPrice !== product.buyPrice && (
                       <div className={cn(
@@ -196,10 +197,10 @@ export const Inventory = () => {
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex justify-end gap-1">
-                      <button onClick={() => handleEdit(product)} className="text-slate-500 hover:text-white hover:bg-slate-800 p-2 rounded-lg transition-all">
+                      <button onClick={() => handleEdit(product)} className="text-text-muted hover:text-text-heading hover:bg-surface-base p-2 rounded-lg transition-all">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => deleteProduct(product.id)} className="text-slate-500 hover:text-rose-400 hover:bg-rose-400/10 p-2 rounded-lg transition-all">
+                      <button onClick={() => deleteProduct(product.id)} className="text-text-muted hover:text-rose-400 hover:bg-rose-400/10 p-2 rounded-lg transition-all">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -220,16 +221,16 @@ export const Inventory = () => {
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
         {filteredProducts.map((product) => (
-          <div key={product.id} className="glass-panel p-5 border-white/5 space-y-4">
+          <div key={product.id} className="glass-panel p-5 border-surface-border space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <h4 className="font-bold text-white text-base leading-tight mb-1">{product.name}</h4>
+                <h4 className="font-bold text-text-heading text-base leading-tight mb-1">{product.name}</h4>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-md bg-slate-900 border border-white/5 text-slate-500 text-[9px] font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-md bg-surface-base border border-surface-border text-text-muted text-[9px] font-bold uppercase tracking-wider transition-colors">
                     {t(`cat_${product.category}` as any)}
                   </span>
                   <span className={cn(
-                    "text-[10px] font-bold font-mono px-2 py-0.5 rounded flex items-center gap-1",
+                    "text-[10px] font-bold font-mono px-2 py-0.5 rounded flex items-center gap-1 transition-colors",
                     product.stock < 5 ? "text-[#FF0000] bg-[#FF0000]/10" : "text-emerald-500 bg-emerald-500/10"
                   )}>
                     Stock: {product.stock}
@@ -237,10 +238,10 @@ export const Inventory = () => {
                 </div>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => handleEdit(product)} className="text-slate-500 hover:text-white p-2 rounded-lg bg-white/5">
+                <button onClick={() => handleEdit(product)} className="text-text-muted hover:text-text-heading p-2 rounded-lg bg-surface-base transition-colors border border-surface-border">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => deleteProduct(product.id)} className="text-slate-500 hover:text-rose-400 p-2 rounded-lg bg-white/5">
+                <button onClick={() => deleteProduct(product.id)} className="text-text-muted hover:text-rose-400 p-2 rounded-lg bg-surface-base transition-colors border border-surface-border">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -250,14 +251,14 @@ export const Inventory = () => {
               <p className="text-xs text-slate-500 italic font-medium leading-relaxed">{product.description}</p>
             )}
 
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/[0.03]">
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-surface-border transition-colors">
               <div>
                 <span className="label-caps !text-[9px] block mb-1 opacity-60">Buy Price</span>
-                <span className="text-sm font-mono text-slate-400">{formatCurrency(product.buyPrice)}</span>
+                <span className="text-sm font-mono text-text-muted">{formatCurrency(product.buyPrice)}</span>
               </div>
               <div className="text-right">
                 <span className="label-caps !text-[9px] block mb-1 opacity-60">Sell Price</span>
-                <span className="text-sm font-bold font-mono text-white tracking-tight">{formatCurrency(product.sellPrice)}</span>
+                <span className="text-sm font-bold font-mono text-text-heading tracking-tight">{formatCurrency(product.sellPrice)}</span>
                 {product.sellPrice !== product.buyPrice && (
                   <div className={cn(
                     "text-[10px] font-bold mt-1",
@@ -300,8 +301,8 @@ export const Inventory = () => {
               className="relative bg-surface-panel border border-surface-border rounded-2xl w-full max-w-lg p-6 md:p-8 shadow-2xl"
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-medium text-white">{editingId ? t('edit_product') : t('add_product')}</h3>
-                <button onClick={() => setIsModalOpen(false)} className="text-zinc-500 hover:text-white">
+                <h3 className="text-xl font-medium text-text-heading">{editingId ? t('edit_product') : t('add_product')}</h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-text-muted hover:text-text-heading transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -332,12 +333,11 @@ export const Inventory = () => {
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{t('initial_stock')}</label>
-                    <input
+                    <NumericInput
                       required
-                      type="number"
                       className="input-field w-full"
                       value={formData.stock}
-                      onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
+                      onChange={(val) => setFormData({ ...formData, stock: val })}
                     />
                   </div>
                 </div>
@@ -349,13 +349,12 @@ export const Inventory = () => {
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                         <span className="text-xs font-bold mr-1">Rp</span>
                       </div>
-                      <input
+                      <NumericInput
                         required
-                        type="number"
                         className="input-field w-full !pl-12"
                         placeholder="0"
                         value={formData.buyPrice}
-                        onChange={(e) => setFormData({ ...formData, buyPrice: parseInt(e.target.value) || 0 })}
+                        onChange={(val) => setFormData({ ...formData, buyPrice: val })}
                       />
                     </div>
                   </div>
@@ -365,13 +364,12 @@ export const Inventory = () => {
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                         <span className="text-xs font-bold mr-1">Rp</span>
                       </div>
-                      <input
+                      <NumericInput
                         required
-                        type="number"
                         className="input-field w-full !pl-12"
                         placeholder="0"
                         value={formData.sellPrice}
-                        onChange={(e) => setFormData({ ...formData, sellPrice: parseInt(e.target.value) || 0 })}
+                        onChange={(val) => setFormData({ ...formData, sellPrice: val })}
                       />
                     </div>
                   </div>

@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { Inventory } from './components/Inventory';
@@ -12,6 +13,7 @@ import { Sales } from './components/Sales';
 import { History } from './components/History';
 import { Customers } from './components/Customers';
 import { Expenses } from './components/Expenses';
+import { ThemeSettingsPanel } from './components/ThemeSettingsPanel';
 import { 
   AlertCircle, 
   ChevronRight, 
@@ -243,6 +245,8 @@ export function MainApp() {
         return <Customers />;
       case 'expenses':
         return <Expenses />;
+      case 'theme':
+        return <ThemeSettingsPanel />;
       case 'settings':
         return <SettingsView />;
       default:
@@ -259,8 +263,10 @@ export function MainApp() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainApp />
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <MainApp />
+      </AppProvider>
+    </ThemeProvider>
   );
 }
